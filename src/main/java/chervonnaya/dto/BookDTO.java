@@ -1,14 +1,10 @@
 package chervonnaya.dto;
 
-import chervonnaya.model.Author;
-import chervonnaya.model.Copy;
 import chervonnaya.model.enums.Language;
 
 import java.util.Set;
 
 public class BookDTO {
-
-    private Long bookId;
     private String originalTitle;
     private Language originalLanguage;
     private String description;
@@ -19,21 +15,12 @@ public class BookDTO {
 
     }
 
-    public BookDTO(Long bookId, String originalTitle, Language originalLanguage, String description, Set<Long> copyId, Set<Long> authorIds) {
-        this.bookId = bookId;
+    public BookDTO(String originalTitle, Language originalLanguage, String description, Set<Long> copyId, Set<Long> authorIds) {
         this.originalTitle = originalTitle;
         this.originalLanguage = originalLanguage;
         this.description = description;
         this.copyId = copyId;
         this.authorIds = authorIds;
-    }
-
-    public Long getBookId() {
-        return bookId;
-    }
-
-    public void setBookId(Long bookId) {
-        this.bookId = bookId;
     }
 
     public String getOriginalTitle() {

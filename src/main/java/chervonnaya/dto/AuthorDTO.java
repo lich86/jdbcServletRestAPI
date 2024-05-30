@@ -3,32 +3,22 @@ package chervonnaya.dto;
 import java.util.Set;
 
 public class AuthorDTO {
-    private Long authorId;
     private String firstName;
     private String lastName;
     private String middleName;
     private String penName;
-    private Set<Long> bookIds;
+    private Set<String> bookTitles;
 
     public AuthorDTO() {
 
     }
 
-    public AuthorDTO(Long authorId, String firstName, String lastName, String middleName, String penName, Set<Long> bookIds) {
-        this.authorId = authorId;
+    public AuthorDTO(String firstName, String lastName, String middleName, String penName, Set<String> bookTitles) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.middleName = middleName;
         this.penName = penName;
-        this.bookIds = bookIds;
-    }
-
-    public Long getAuthorId() {
-        return authorId;
-    }
-
-    public void setAuthorId(Long authorId) {
-        this.authorId = authorId;
+        this.bookTitles = bookTitles;
     }
 
     public String getFirstName() {
@@ -63,11 +53,11 @@ public class AuthorDTO {
         this.penName = penName;
     }
 
-    public Set<Long> getBookIds() {
-        return bookIds;
+    public Set<String> getBookTitles() {
+        return bookTitles;
     }
 
-    public void setBookIds(Set<Long> bookIds) {
-        this.bookIds = bookIds;
+    public void setBookTitles(Set<String> bookTitles) {
+        this.bookTitles = bookTitles;
     }
 }
