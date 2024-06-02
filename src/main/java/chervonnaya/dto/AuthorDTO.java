@@ -7,18 +7,18 @@ public class AuthorDTO {
     private String lastName;
     private String middleName;
     private String penName;
-    private Set<String> bookTitles;
+    private Set<Long> bookIds;
 
     public AuthorDTO() {
 
     }
 
-    public AuthorDTO(String firstName, String lastName, String middleName, String penName, Set<String> bookTitles) {
+    public AuthorDTO(String firstName, String lastName, String middleName, String penName, Set<Long> bookIds) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.middleName = middleName;
         this.penName = penName;
-        this.bookTitles = bookTitles;
+        this.bookIds = bookIds;
     }
 
     public String getFirstName() {
@@ -53,11 +53,11 @@ public class AuthorDTO {
         this.penName = penName;
     }
 
-    public Set<String> getBookTitles() {
-        return bookTitles;
+    public Set<Long> getBookIds() {
+        return bookIds;
     }
 
-    public void setBookTitles(Set<String> bookTitles) {
-        this.bookTitles = bookTitles;
+    public void setBookIds(Set<Long> bookIds) {
+        this.bookIds = bookIds;
     }
 }
