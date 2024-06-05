@@ -15,13 +15,13 @@ import java.util.*;
 public class AuthorDAO {
     private static final String FIND_BY_ID_SQL = "SELECT * FROM author WHERE author_id = ?";
     private static final String FIND_BOOKS_BY_AUTHOR_ID_SQL = "SELECT * FROM book WHERE author_id = ?";
-    private static final String FIND_COPIES_BY_BOOK_ID_SQL = "SELECT * FROM copy WHERE book_id = ?";
+    private static final String FIND_COPIES_BY_BOOK_ID_SQL = "SELECT * FROM copies WHERE book_id = ?";
     private static final String FIND_ALL_AUTHORS = "SELECT * FROM author";
     private static final String INSERT_AUTHOR_SQL = "INSERT INTO author (first_name, last_name, middle_name, pen_name) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_AUTHOR_SQL = "UPDATE author SET first_name = ?, last_name = ?, middle_name = ?, pen_name = ? WHERE author_id = ?";
     private static final String DELETE_AUTHOR_SQL = "DELETE FROM author WHERE author_id = ?";
     private static final String DELETE_BOOK_SQL = "DELETE FROM book WHERE book_id = ?";
-    private static final String DELETE_COPY_BY_BOOK_ID_SQL = "DELETE FROM copy WHERE book_id = ?";
+    private static final String DELETE_COPY_BY_BOOK_ID_SQL = "DELETE FROM copies WHERE book_id = ?";
     private static final String DELETE_BOOK_AUTHOR_SQL = "DELETE FROM book_author WHERE author_id = ?";
     private final AuthorMapper authorMapper = AuthorMapper.INSTANCE;
     private final BookMapper bookMapper = BookMapper.INSTANCE;
@@ -110,10 +110,12 @@ public class AuthorDAO {
                 while (booksToDelete.next()) {
                     Long bookId = booksToDelete.getLong("book_id");
                     copyDeleteStatement.setLong(1, bookId);
-                    copyDeleteStatement.executeUpdate();
+                    copyDeleteStatement.addBatch();
                     bookDeleteStatement.setLong(1, bookId);
-                    bookDeleteStatement.executeUpdate();
+                    bookDeleteStatement.addBatch();
                 }
+                copyDeleteStatement.executeBatch();
+                bookDeleteStatement.executeBatch();
                 manyToManyDeleteStatement.setLong(1, authorId);
                 manyToManyDeleteStatement.executeUpdate();
                 authorDeleteStatement.setLong(1, authorId);

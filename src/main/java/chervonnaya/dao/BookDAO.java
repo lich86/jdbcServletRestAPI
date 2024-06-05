@@ -18,13 +18,13 @@ public class BookDAO {
     private static final String FIND_BY_ID_SQL = "SELECT * FROM book WHERE book_id = ?";
     private static final String FIND_AUTHORS_BY_BOOK_ID_SQL = "SELECT a.* FROM author a JOIN book_author ba ON a.author_id = ba.author_id WHERE ba.book_id = ?";
     private static final String FIND_AUTHOR_IDS_BY_BOOK_ID_SQL = "SELECT author_id FROM book_author WHERE book_id = ?";
-    private static final String FIND_COPIES_BY_BOOK_ID_SQL = "SELECT * FROM copy WHERE book_id = ?";
+    private static final String FIND_COPIES_BY_BOOK_ID_SQL = "SELECT * FROM copies WHERE book_id = ?";
     private static final String FIND_ALL_BOOKS_SQL = "SELECT * FROM book";
     private static final String INSERT_BOOK_SQL = "INSERT INTO book (original_title, original_language, description) VALUES (?, ?, ?)";
     private static final String SET_AUTHOR_SQL = "INSERT INTO book_author (book_id, author_id) VALUES (?, ?)";
     private static final String UPDATE_BOOK_SQL = "UPDATE book SET original_title = ?, original_language = ?, description = ? WHERE book_id = ?";
     private static final String DELETE_BOOK_SQL = "DELETE FROM book WHERE book_id = ?";
-    private static final String DELETE_COPY_BY_BOOK_ID_SQL = "DELETE FROM copy WHERE book_id = ?";
+    private static final String DELETE_COPY_BY_BOOK_ID_SQL = "DELETE FROM copies WHERE book_id = ?";
     private static final String DELETE_BOOK_AUTHOR_SQL = "DELETE FROM book_author WHERE book_id = ? AND author_id = ?";
     private final AuthorMapper authorMapper = AuthorMapper.INSTANCE;
     private final BookMapper bookMapper = BookMapper.INSTANCE;
