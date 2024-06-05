@@ -2,7 +2,7 @@ package chervonnaya.dto;
 
 import java.util.Set;
 
-public class AuthorDTO {
+public class AuthorDTO extends BaseDTO{
     private String firstName;
     private String lastName;
     private String middleName;

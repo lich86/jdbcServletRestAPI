@@ -1,4 +1,4 @@
-package chervonnaya.util.mappers;
+package chervonnaya.dao.mappers;
 
 import chervonnaya.model.Author;
 import org.mapstruct.Mapper;
@@ -9,9 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Mapper
-public interface AuthorMapper {
+public interface AuthorDBMapper {
 
-    AuthorMapper INSTANCE = Mappers.getMapper(AuthorMapper.class);
+    AuthorDBMapper INSTANCE = Mappers.getMapper(AuthorDBMapper.class);
 
     @Mapping(target = "authorId", source = "resultSet.getLong('author_id')")
     @Mapping(target = "firstName", source = "resultSet.getString('first_name')")

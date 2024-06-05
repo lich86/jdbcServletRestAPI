@@ -1,15 +1,17 @@
-package chervonnaya.util.mappers;
+package chervonnaya.dao.mappers;
 
 import chervonnaya.model.Book;
 import chervonnaya.model.enums.Language;
+import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public interface BookMapper {
-    BookMapper INSTANCE = Mappers.getMapper(BookMapper.class);
+@Mapper
+public interface BookDBMapper {
+    BookDBMapper INSTANCE = Mappers.getMapper(BookDBMapper.class);
 
     @Mapping(target = "bookId", source = "resultSet.getLong('book_id')")
     @Mapping(target = "description", source = "resultSet.getString('description')")

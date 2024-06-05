@@ -2,7 +2,7 @@ package chervonnaya.model;
 
 import java.util.Set;
 
-public class Author {
+public class Author extends BaseEntity{
 
     private Long authorId;
     private String firstName;

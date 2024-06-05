@@ -4,7 +4,7 @@ import chervonnaya.model.enums.Language;
 
 import java.util.Set;
 
-public class Book {
+public class Book extends BaseEntity {
     private Long bookId;
     private String originalTitle;
     private Language originalLanguage;

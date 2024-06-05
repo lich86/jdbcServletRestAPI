@@ -3,9 +3,8 @@ package chervonnaya.model;
 import chervonnaya.model.enums.Language;
 
 import java.time.Year;
-import java.util.Set;
 
-public class Copy {
+public class Copy extends BaseEntity {
     private Long copyId;
     private String title;
     private Language language;

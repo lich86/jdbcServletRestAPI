@@ -4,7 +4,7 @@ import chervonnaya.model.enums.Language;
 
 import java.time.Year;
 
-public class CopyDTO {
+public class CopyDTO extends BaseDTO{
     private String title;
     private Language language;
     private Double price;
