@@ -3,6 +3,7 @@ package chervonnaya.dto;
 import java.util.Set;
 
 public class AuthorDTO extends BaseDTO{
+    private Long authorId;
     private String firstName;
     private String lastName;
     private String middleName;
@@ -13,12 +14,21 @@ public class AuthorDTO extends BaseDTO{
 
     }
 
-    public AuthorDTO(String firstName, String lastName, String middleName, String penName, Set<Long> bookIds) {
+    public AuthorDTO(Long authorId, String firstName, String lastName, String middleName, String penName, Set<Long> bookIds) {
+        this.authorId = authorId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.middleName = middleName;
         this.penName = penName;
         this.bookIds = bookIds;
+    }
+
+    public Long getAuthorId() {
+        return authorId;
+    }
+
+    public void setAuthorId(Long authorId) {
+        this.authorId = authorId;
     }
 
     public String getFirstName() {

@@ -14,7 +14,7 @@ import java.util.*;
 
 public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
     private static final String FIND_BY_ID_SQL = "SELECT * FROM author WHERE author_id = ?";
-    private static final String FIND_BOOKS_BY_AUTHOR_ID_SQL = "SELECT * FROM book WHERE author_id = ?";
+    private static final String FIND_BOOKS_BY_AUTHOR_ID_SQL = "SELECT * FROM book b JOIN book_author ba ON b.book_id = ba.book_id WHERE author_id = ?";
     private static final String FIND_COPIES_BY_BOOK_ID_SQL = "SELECT * FROM copies WHERE book_id = ?";
     private static final String FIND_ALL_AUTHORS = "SELECT * FROM author";
     private static final String INSERT_AUTHOR_SQL = "INSERT INTO author (first_name, last_name, middle_name, pen_name) VALUES (?, ?, ?, ?)";
@@ -26,6 +26,7 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
     private final AuthorDBMapper authorDBMapper = AuthorDBMapper.INSTANCE;
     private final BookDBMapper bookDBMapper = BookDBMapper.INSTANCE;
     private final CopyDBMapper copyDBMapper = CopyDBMapper.INSTANCE;
+
 
     @Override
     public Optional<Author> findById(Long authorId) {

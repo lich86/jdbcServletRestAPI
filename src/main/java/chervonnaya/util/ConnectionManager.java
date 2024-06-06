@@ -21,6 +21,7 @@ public class ConnectionManager {
             properties.load(input);
 
             HikariConfig config = new HikariConfig();
+            config.setDriverClassName(properties.getProperty("db.driver"));
             config.setJdbcUrl(properties.getProperty("db.url"));
             config.setUsername(properties.getProperty("db.username"));
             config.setPassword(properties.getProperty("db.password"));

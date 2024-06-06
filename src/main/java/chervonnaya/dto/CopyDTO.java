@@ -5,6 +5,8 @@ import chervonnaya.model.enums.Language;
 import java.time.Year;
 
 public class CopyDTO extends BaseDTO{
+
+    private Long copyId;
     private String title;
     private Language language;
     private Double price;
@@ -17,7 +19,8 @@ public class CopyDTO extends BaseDTO{
 
     }
 
-    public CopyDTO(String title, Language language, Double price, String publishingHouse, Year publishingYear, String translator, Long bookId) {
+    public CopyDTO(Long copyId, String title, Language language, Double price, String publishingHouse, Year publishingYear, String translator, Long bookId) {
+        this.copyId = copyId;
         this.title = title;
         this.language = language;
         this.price = price;
@@ -25,6 +28,14 @@ public class CopyDTO extends BaseDTO{
         this.publishingYear = publishingYear;
         this.translator = translator;
         this.bookId = bookId;
+    }
+
+    public Long getCopyId() {
+        return copyId;
+    }
+
+    public void setCopyId(Long copyId) {
+        this.copyId = copyId;
     }
 
     public String getTitle() {

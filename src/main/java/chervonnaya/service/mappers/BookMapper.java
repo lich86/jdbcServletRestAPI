@@ -6,24 +6,32 @@ import chervonnaya.model.Book;
 import chervonnaya.model.Copy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.factory.Mappers;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Mapper
-public interface BookMapper extends BaseMapper {
+@Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
+public interface BookMapper extends BaseMapper<Book, BookDTO> {
     BookMapper INSTANCE = Mappers.getMapper(BookMapper.class);
 
-    @Mapping(source = "copyIds", target = "copies", qualifiedByName = "mapToCopyIds")
-    @Mapping(source = "authorIds", target = "authors", qualifiedByName = "mapToAuthorIds")
+    @Mapping(source = "copies", target = "copyIds", qualifiedByName = "mapCopyIds")
+    @Mapping(source = "authors", target = "authorIds", qualifiedByName = "mapAuthorIds")
     BookDTO map(Book book);
 
-    default Set<Long> mapToCopyIds(Set<Copy> copies) {
+    @Named("mapCopyIds")
+    static Set<Long> mapCopyIds(Set<Copy> copies) {
+        if (copies == null) {
+            return Collections.emptySet();
+        }
         return copies.stream().map(Copy::getCopyId).collect(Collectors.toSet());
     }
 
-    default Set<Long> mapToAuthorIds(Set<Author> authors) {
+    @Named("mapAuthorIds")
+    static Set<Long> mapAuthorIds(Set<Author> authors) {
         return authors.stream().map(Author::getAuthorId).collect(Collectors.toSet());
     }
 }

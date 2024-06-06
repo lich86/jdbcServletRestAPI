@@ -13,7 +13,7 @@ import java.util.*;
 public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
     private static final String FIND_BY_ID_SQL = "SELECT * FROM copies WHERE copy_id = ?";
     private static final String FIND_ALL_COPIES = "SELECT * FROM copies";
-    private static final String FIND_BOOK_BY_COPY_ID_SQL = "SELECT * FROM book b JOIN copies c ON b.id = c.book_id WHERE copy_id = ?";
+    private static final String FIND_BOOK_BY_COPY_ID_SQL = "SELECT * FROM book b JOIN copies c ON b.book_id = c.book_id WHERE copy_id = ?";
     private static final String INSERT_COPY_SQL = "INSERT INTO copies (title, language, price, publishingHouse, publishingYear, translator, book_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_COPY_SQL = "UPDATE copies SET title = ?, language = ?, price = ?, publishingHouse = ?, publishingYear = ?, translator = ?, book_id = ? WHERE copy_id = ?";
     private static final String DELETE_COPY_SQL = "DELETE FROM copies WHERE copy_id = ?";
