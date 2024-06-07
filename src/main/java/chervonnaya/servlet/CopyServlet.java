@@ -3,7 +3,7 @@ package chervonnaya.servlet;
 import chervonnaya.dao.CopyDAO;
 import chervonnaya.dto.CopyDTO;
 import chervonnaya.model.Copy;
-import chervonnaya.service.CopyService;
+import chervonnaya.service.CopyServiceImpl;
 import chervonnaya.service.mappers.CopyMapper;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -22,13 +22,13 @@ import java.util.Set;
 
 @WebServlet("/copy/*")
 public class CopyServlet extends HttpServlet {
-    private CopyService copyService;
+    private CopyServiceImpl copyService;
     private ObjectMapper objectMapper;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        this.copyService = new CopyService(new CopyDAO(), Copy.class, Mappers.getMapper(CopyMapper.class));
+        this.copyService = new CopyServiceImpl(new CopyDAO(), Copy.class, Mappers.getMapper(CopyMapper.class));
         this.objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
     }
@@ -89,7 +89,7 @@ public class CopyServlet extends HttpServlet {
             CopyDTO actualDTO = copyService.getById(id).orElse(null);
             if (actualDTO != null) {
                 CopyDTO receivedDTO = objectMapper.readValue(request.getReader(), CopyDTO.class);
-                receivedDTO.setCopyId(id);
+                receivedDTO.setId(id);
                 copyService.update(id, receivedDTO);
                 response.setContentType("application/json");
                 out.print(objectMapper.writeValueAsString(receivedDTO));

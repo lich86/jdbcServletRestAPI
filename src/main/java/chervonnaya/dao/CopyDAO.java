@@ -1,5 +1,6 @@
 package chervonnaya.dao;
 
+import chervonnaya.dao.exception.DatabaseOperationException;
 import chervonnaya.dto.CopyDTO;
 import chervonnaya.model.Book;
 import chervonnaya.model.Copy;
@@ -36,7 +37,7 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
                 copy.setBook(book);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DatabaseOperationException("Unable to retrieve copy, id: " + copyId, e);
         }
         return Optional.ofNullable(copy);
     }
@@ -49,7 +50,7 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
             ResultSet copyResultSet = copyStatement.executeQuery();
             while (copyResultSet.next()) {
                 Copy copy = copyDBMapper.map(copyResultSet);
-                bookStatement.setLong(1, copy.getCopyId());
+                bookStatement.setLong(1, copy.getId());
                 ResultSet bookResultSet = bookStatement.executeQuery();
                 bookResultSet.next();
                 Book book = bookDBMapper.map(bookResultSet);
@@ -57,12 +58,12 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
                 copySet.add(copy);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DatabaseOperationException("Unable to retrieve copies", e);
         }
         return copySet;
     }
 
-    public void create(CopyDTO dto) throws SQLException{
+    public void create(CopyDTO dto){
         try(Connection connection = ConnectionManager.getConnection();
             PreparedStatement copyStatement = connection.prepareStatement(INSERT_COPY_SQL)) {
             copyStatement.setString(1, dto.getTitle());
@@ -75,15 +76,14 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
 
             int affectedRows = copyStatement.executeUpdate();
             if (affectedRows == 0) {
-                throw new SQLException("Creating copy failed, no rows affected.");
+                throw new DatabaseOperationException("Creating copy failed, no rows affected.");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new SQLException("Creating copy failed");
+            throw new DatabaseOperationException("Creating copy failed", e);
         }
     }
 
-    public void update(Long copyId, CopyDTO dto) throws SQLException {
+    public void update(Long copyId, CopyDTO dto) {
         try(Connection connection = ConnectionManager.getConnection();
             PreparedStatement copyStatement = connection.prepareStatement(UPDATE_COPY_SQL)) {
             copyStatement.setString(1, dto.getTitle());
@@ -97,25 +97,23 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
 
             int affectedRows = copyStatement.executeUpdate();
             if (affectedRows == 0) {
-                throw new SQLException("Updating copy failed, no rows affected.");
+                throw new DatabaseOperationException("Updating copy failed, no rows affected, id: " + copyId);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new SQLException("Updating copy failed");
+            throw new DatabaseOperationException("Updating copy failed, id: " + copyId, e);
         }
     }
 
-    public void delete(Long copyId) throws SQLException {
+    public void delete(Long copyId) {
         try(Connection connection = ConnectionManager.getConnection();
             PreparedStatement copyDeleteStatement = connection.prepareStatement(DELETE_COPY_SQL)) {
             copyDeleteStatement.setLong(1, copyId);
             int affectedRows = copyDeleteStatement.executeUpdate();
             if (affectedRows == 0) {
-                throw new SQLException("No copy found with id " + copyId);
+                throw new DatabaseOperationException("No copy found, id " + copyId);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new SQLException("Could not delete copy with id: " + copyId);
+            throw new DatabaseOperationException("Could not delete copy, id: " + copyId, e);
         }
     }
 }

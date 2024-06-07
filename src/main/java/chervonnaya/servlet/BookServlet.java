@@ -3,7 +3,7 @@ package chervonnaya.servlet;
 import chervonnaya.dao.BookDAO;
 import chervonnaya.dto.BookDTO;
 import chervonnaya.model.Book;
-import chervonnaya.service.BookService;
+import chervonnaya.service.BookServiceImpl;
 import chervonnaya.service.mappers.BookMapper;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -21,13 +21,13 @@ import java.util.Set;
 
 @WebServlet("/book/*")
 public class BookServlet extends HttpServlet {
-    private BookService bookService;
+    private BookServiceImpl bookService;
     private ObjectMapper objectMapper;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        this.bookService = new BookService(new BookDAO(), Book.class, Mappers.getMapper(BookMapper.class));
+        this.bookService = new BookServiceImpl(new BookDAO(), Book.class, Mappers.getMapper(BookMapper.class));
         this.objectMapper = new ObjectMapper();
     }
 
@@ -87,7 +87,7 @@ public class BookServlet extends HttpServlet {
             BookDTO actualDTO = bookService.getById(id).orElse(null);
             if (actualDTO != null) {
                 BookDTO receivedDTO = objectMapper.readValue(request.getReader(), BookDTO.class);
-                receivedDTO.setBookId(id);
+                receivedDTO.setId(id);
                 bookService.update(id, receivedDTO);
                 response.setContentType("application/json");
                 out.print(objectMapper.writeValueAsString(receivedDTO));

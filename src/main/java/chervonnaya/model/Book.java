@@ -5,7 +5,6 @@ import chervonnaya.model.enums.Language;
 import java.util.Set;
 
 public class Book extends BaseEntity {
-    private Long bookId;
     private String originalTitle;
     private Language originalLanguage;
     private String description;
@@ -15,22 +14,13 @@ public class Book extends BaseEntity {
     public Book() {
 
     }
-
     public Book(Long bookId, String originalTitle, Language originalLanguage, String description, Set<Copy> copies, Set<Author> authors) {
-        this.bookId = bookId;
+        super(bookId);
         this.originalTitle = originalTitle;
         this.originalLanguage = originalLanguage;
         this.description = description;
         this.copies = copies;
         this.authors = authors;
-    }
-
-    public Long getBookId() {
-        return bookId;
-    }
-
-    public void setBookId(Long bookId) {
-        this.bookId = bookId;
     }
 
     public String getOriginalTitle() {

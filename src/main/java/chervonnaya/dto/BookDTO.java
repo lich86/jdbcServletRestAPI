@@ -5,8 +5,6 @@ import chervonnaya.model.enums.Language;
 import java.util.Set;
 
 public class BookDTO extends BaseDTO{
-
-    private Long bookId;
     private String originalTitle;
     private Language originalLanguage;
     private String description;
@@ -18,20 +16,12 @@ public class BookDTO extends BaseDTO{
     }
 
     public BookDTO(Long bookId, String originalTitle, Language originalLanguage, String description, Set<Long> copyIds, Set<Long> authorIds) {
-        this.bookId = bookId;
+        super(bookId);
         this.originalTitle = originalTitle;
         this.originalLanguage = originalLanguage;
         this.description = description;
         this.copyIds = copyIds;
         this.authorIds = authorIds;
-    }
-
-    public Long getBookId() {
-        return bookId;
-    }
-
-    public void setBookId(Long bookId) {
-        this.bookId = bookId;
     }
 
     public String getOriginalTitle() {

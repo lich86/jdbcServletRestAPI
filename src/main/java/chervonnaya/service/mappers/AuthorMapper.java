@@ -18,6 +18,7 @@ public interface AuthorMapper extends BaseMapper<Author, AuthorDTO>{
     AuthorMapper INSTANCE = Mappers.getMapper(AuthorMapper.class);
 
     @Mapping(source = "books", target = "bookIds", qualifiedByName = "mapIds")
+    @Mapping(source = "books", target = "bookTitles", qualifiedByName = "mapTitles")
     AuthorDTO map(Author author);
 
     @Named("mapIds")
@@ -25,6 +26,15 @@ public interface AuthorMapper extends BaseMapper<Author, AuthorDTO>{
         if (books == null) {
             return Collections.emptySet();
         }
-        return books.stream().map(Book::getBookId).collect(Collectors.toSet());
+        return books.stream().map(Book::getId).collect(Collectors.toSet());
+    }
+
+
+    @Named("mapTitles")
+    static Set<String> mapTitles(Set<Book> books) {
+        if (books == null) {
+            return Collections.emptySet();
+        }
+        return books.stream().map(Book::getOriginalTitle).collect(Collectors.toSet());
     }
 }

@@ -15,7 +15,7 @@ import java.sql.SQLException;
 public interface BookDBMapper {
     BookDBMapper INSTANCE = Mappers.getMapper(BookDBMapper.class);
 
-    @Mapping(target = "bookId", source = "resultSet", qualifiedByName = "mapBookId")
+    @Mapping(target = "id", source = "resultSet", qualifiedByName = "mapBookId")
     @Mapping(target = "description", source = "resultSet", qualifiedByName = "mapDescription")
     @Mapping(target = "originalLanguage", source = "resultSet", qualifiedByName = "mapOriginalLanguage")
     @Mapping(target = "originalTitle", source = "resultSet", qualifiedByName = "mapOriginalTitle")

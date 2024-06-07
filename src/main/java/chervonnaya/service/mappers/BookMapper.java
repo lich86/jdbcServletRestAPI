@@ -27,11 +27,11 @@ public interface BookMapper extends BaseMapper<Book, BookDTO> {
         if (copies == null) {
             return Collections.emptySet();
         }
-        return copies.stream().map(Copy::getCopyId).collect(Collectors.toSet());
+        return copies.stream().map(Copy::getId).collect(Collectors.toSet());
     }
 
     @Named("mapAuthorIds")
     static Set<Long> mapAuthorIds(Set<Author> authors) {
-        return authors.stream().map(Author::getAuthorId).collect(Collectors.toSet());
+        return authors.stream().map(Author::getId).collect(Collectors.toSet());
     }
 }

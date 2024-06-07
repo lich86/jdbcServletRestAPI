@@ -3,8 +3,6 @@ package chervonnaya.model;
 import java.util.Set;
 
 public class Author extends BaseEntity{
-
-    private Long authorId;
     private String firstName;
     private String lastName;
     private String middleName;
@@ -15,20 +13,12 @@ public class Author extends BaseEntity{
     }
 
     public Author(Long authorId, String firstName, String lastName, String middleName, String penName, Set<Book> books) {
-        this.authorId = authorId;
+        super(authorId);
         this.firstName = firstName;
         this.lastName = lastName;
         this.middleName = middleName;
         this.penName = penName;
         this.books = books;
-    }
-
-    public Long getAuthorId() {
-        return authorId;
-    }
-
-    public void setAuthorId(Long authorId) {
-        this.authorId = authorId;
     }
 
     public String getFirstName() {

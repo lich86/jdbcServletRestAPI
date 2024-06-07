@@ -1,13 +1,15 @@
 package chervonnaya.dao;
 
+import chervonnaya.dao.exception.DatabaseOperationException;
 import chervonnaya.dto.AuthorDTO;
 import chervonnaya.model.Author;
 import chervonnaya.model.Book;
-import chervonnaya.model.Copy;
 import chervonnaya.util.ConnectionManager;
 import chervonnaya.dao.mappers.AuthorDBMapper;
 import chervonnaya.dao.mappers.BookDBMapper;
 import chervonnaya.dao.mappers.CopyDBMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.*;
@@ -15,7 +17,6 @@ import java.util.*;
 public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
     private static final String FIND_BY_ID_SQL = "SELECT * FROM author WHERE author_id = ?";
     private static final String FIND_BOOKS_BY_AUTHOR_ID_SQL = "SELECT * FROM book b JOIN book_author ba ON b.book_id = ba.book_id WHERE author_id = ?";
-    private static final String FIND_COPIES_BY_BOOK_ID_SQL = "SELECT * FROM copies WHERE book_id = ?";
     private static final String FIND_ALL_AUTHORS = "SELECT * FROM author";
     private static final String INSERT_AUTHOR_SQL = "INSERT INTO author (first_name, last_name, middle_name, pen_name) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_AUTHOR_SQL = "UPDATE author SET first_name = ?, last_name = ?, middle_name = ?, pen_name = ? WHERE author_id = ?";
@@ -27,22 +28,23 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
     private final BookDBMapper bookDBMapper = BookDBMapper.INSTANCE;
     private final CopyDBMapper copyDBMapper = CopyDBMapper.INSTANCE;
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthorDAO.class);
+
 
     @Override
     public Optional<Author> findById(Long authorId) {
         Author author = null;
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement authorStatement = connection.prepareStatement(FIND_BY_ID_SQL);
-             PreparedStatement booksStatement = connection.prepareStatement(FIND_BOOKS_BY_AUTHOR_ID_SQL);
-             PreparedStatement copiesStatement = connection.prepareStatement(FIND_COPIES_BY_BOOK_ID_SQL)) {
+             PreparedStatement booksStatement = connection.prepareStatement(FIND_BOOKS_BY_AUTHOR_ID_SQL)) {
 
             authorStatement.setLong(1, authorId);
             ResultSet authorResultSet = authorStatement.executeQuery();
             if (authorResultSet.next()) {
-                author = mapToAuthor(authorResultSet, booksStatement, copiesStatement);
+                author = mapToAuthor(authorResultSet, booksStatement);
             }
         } catch (SQLException e) {
-            e.printStackTrace(); //TODO exceptions
+            throw new DatabaseOperationException("Unable to retrieve author, id: " + authorId, e);
         }
         return Optional.ofNullable(author);
     }
@@ -53,20 +55,19 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
         Set<Author> authorSet = new HashSet<>();
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement allAuthorsStatement = connection.prepareStatement(FIND_ALL_AUTHORS);
-             PreparedStatement booksStatement = connection.prepareStatement(FIND_BOOKS_BY_AUTHOR_ID_SQL);
-             PreparedStatement copiesStatement = connection.prepareStatement(FIND_COPIES_BY_BOOK_ID_SQL)) {
+             PreparedStatement booksStatement = connection.prepareStatement(FIND_BOOKS_BY_AUTHOR_ID_SQL)) {
             ResultSet authorResultSet = allAuthorsStatement.executeQuery();
             while (authorResultSet.next()) {
-                authorSet.add(mapToAuthor(authorResultSet, booksStatement, copiesStatement));
+                authorSet.add(mapToAuthor(authorResultSet, booksStatement));
             }
         } catch (SQLException e) {
-            e.printStackTrace(); //TODO exceptions
+            throw new DatabaseOperationException("Unable to retrieve authors", e);
         }
         return authorSet;
 
     }
 
-    public void create(AuthorDTO dto) throws SQLException {
+    public void create(AuthorDTO dto) {
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement authorStatement = connection.prepareStatement(INSERT_AUTHOR_SQL)) {
             authorStatement.setString(1, dto.getFirstName());
@@ -77,15 +78,14 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
             int affectedRows = authorStatement.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SQLException("Creating author failed, no rows affected.");
+                throw new DatabaseOperationException("Creating author failed, no rows affected.");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new SQLException("Creating author failed");
+            throw new DatabaseOperationException("Creating author failed", e);
         }
     }
 
-    public void update(Long authorId, AuthorDTO dto) throws SQLException {
+    public void update(Long authorId, AuthorDTO dto) {
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement authorStatement = connection.prepareStatement(UPDATE_AUTHOR_SQL)) {
             authorStatement.setString(1, dto.getFirstName());
@@ -97,16 +97,16 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
             int affectedRows = authorStatement.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SQLException("Updating author failed, no rows affected.");
+                throw new DatabaseOperationException("Updating author failed, no rows affected, id:" + authorId);
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new SQLException("Updating author failed");
+            throw new DatabaseOperationException("Updating author failed, id:" + authorId, e);
         }
 
     }
 
-    public void delete(Long authorId) throws SQLException {
+    public void delete(Long authorId) {
         try (Connection connection = ConnectionManager.getConnection()){
             connection.setAutoCommit(false);
             try(PreparedStatement authorDeleteStatement = connection.prepareStatement(DELETE_AUTHOR_SQL);
@@ -130,51 +130,42 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
                 authorDeleteStatement.setLong(1, authorId);
                 int affectedRows = authorDeleteStatement.executeUpdate();
                 if (affectedRows == 0) {
-                    throw new SQLException("No author found with id " + authorId);
+                    throw new DatabaseOperationException("No author found, id: " + authorId);
                 }
 
                 connection.commit();
             } catch (SQLException e) {
                 connection.rollback();
-                e.printStackTrace();
+                throw new DatabaseOperationException("Could not delete author, id: " + authorId, e);
             } finally {
                 connection.setAutoCommit(true);
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new SQLException("Could not delete author with id: " + authorId);
+            throw new DatabaseOperationException("Could not delete author, id: " + authorId, e);
         }
 
     }
 
-    private Author mapToAuthor(ResultSet authorResultSet, PreparedStatement booksStatement, PreparedStatement copiesStatement) throws SQLException {
+    private Author mapToAuthor(ResultSet authorResultSet, PreparedStatement booksStatement) throws SQLException {
         Author author = authorDBMapper.map(authorResultSet);
 
         if (author != null) {
-            booksStatement.setLong(1, author.getAuthorId());
+            booksStatement.setLong(1, author.getId());
             ResultSet booksResultSet = booksStatement.executeQuery();
             Set<Book> bookSet = new HashSet<>();
             while (booksResultSet.next()) {
-                Book book = bookDBMapper.map(booksResultSet);
-                copiesStatement.setLong(1, book.getBookId());
-                ResultSet copiesResultSet = copiesStatement.executeQuery();
-                Set<Copy> copySet = new HashSet<>();
-                while (copiesResultSet.next()) {
-                    Copy copy = copyDBMapper.map(copiesResultSet);
-                    copy.setBook(book);
-                    copySet.add(copy);
+                try {
+                    Book book = bookDBMapper.map(booksResultSet);
+                    bookSet.add(book);
+                } catch (SQLException e) {
+                    logger.error("Unable to retrieve books for author:" + author.getId());
                 }
-                if(!copySet.isEmpty()) {
-                    book.setCopies(copySet);
-                }
-                bookSet.add(book);
             }
-            if(!bookSet.isEmpty()) {
+            if (!bookSet.isEmpty()) {
                 author.setBooks(bookSet);
             }
         }
-
         return author;
     }
 

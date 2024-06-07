@@ -16,7 +16,7 @@ import java.time.Year;
 public interface CopyDBMapper {
     CopyDBMapper INSTANCE = Mappers.getMapper(CopyDBMapper.class);
 
-    @Mapping(target = "copyId", source = "resultSet", qualifiedByName = "mapCopyId")
+    @Mapping(target = "id", source = "resultSet", qualifiedByName = "mapCopyId")
     @Mapping(target = "title", source = "resultSet", qualifiedByName = "mapTitle")
     @Mapping(target = "language", source = "resultSet", qualifiedByName = "mapLanguage")
     @Mapping(target = "price", source = "resultSet", qualifiedByName = "mapPrice")

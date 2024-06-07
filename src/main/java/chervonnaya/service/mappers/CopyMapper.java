@@ -18,6 +18,6 @@ public interface CopyMapper extends BaseMapper<Copy, CopyDTO> {
 
     @Named("mapId")
     static Long mapId(Book book) {
-        return book.getBookId();
+        return book.getId();
     }
 }

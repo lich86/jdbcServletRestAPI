@@ -15,7 +15,7 @@ public interface AuthorDBMapper {
 
     AuthorDBMapper INSTANCE = Mappers.getMapper(AuthorDBMapper.class);
 
-    @Mapping(target = "authorId", source = "resultSet", qualifiedByName = "mapAuthorId")
+    @Mapping(target = "id", source = "resultSet", qualifiedByName = "mapAuthorId")
     @Mapping(target = "firstName", source = "resultSet", qualifiedByName = "mapFirstName")
     @Mapping(target = "lastName", source = "resultSet", qualifiedByName = "mapLastName")
     @Mapping(target = "middleName", source = "resultSet", qualifiedByName = "mapMiddleName")

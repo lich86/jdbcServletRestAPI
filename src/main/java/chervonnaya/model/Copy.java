@@ -5,7 +5,6 @@ import chervonnaya.model.enums.Language;
 import java.time.Year;
 
 public class Copy extends BaseEntity {
-    private Long copyId;
     private String title;
     private Language language;
     private Double price;
@@ -19,7 +18,7 @@ public class Copy extends BaseEntity {
     }
 
     public Copy(Long copyId, String title, Language language, Double price, String publishingHouse, Year publishingYear, String translator, Book book) {
-        this.copyId = copyId;
+        super(copyId);
         this.title = title;
         this.language = language;
         this.price = price;
@@ -27,14 +26,6 @@ public class Copy extends BaseEntity {
         this.publishingYear = publishingYear;
         this.translator = translator;
         this.book = book;
-    }
-
-    public Long getCopyId() {
-        return copyId;
-    }
-
-    public void setCopyId(Long copyId) {
-        this.copyId = copyId;
     }
 
     public String getTitle() {

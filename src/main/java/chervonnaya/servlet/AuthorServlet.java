@@ -3,7 +3,7 @@ package chervonnaya.servlet;
 import chervonnaya.dao.AuthorDAO;
 import chervonnaya.dto.AuthorDTO;
 import chervonnaya.model.Author;
-import chervonnaya.service.AuthorService;
+import chervonnaya.service.AuthorServiceImpl;
 import chervonnaya.service.mappers.AuthorMapper;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -21,13 +21,13 @@ import java.util.Set;
 
 @WebServlet("/author/*")
 public class AuthorServlet extends HttpServlet {
-    private AuthorService authorService;
+    private AuthorServiceImpl authorService;
     private ObjectMapper objectMapper;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        this.authorService = new AuthorService(new AuthorDAO(), Author.class, Mappers.getMapper(AuthorMapper.class));
+        this.authorService = new AuthorServiceImpl(new AuthorDAO(), Author.class, Mappers.getMapper(AuthorMapper.class));
         this.objectMapper = new ObjectMapper();
     }
 
@@ -87,7 +87,7 @@ public class AuthorServlet extends HttpServlet {
             AuthorDTO actualDTO = authorService.getById(id).orElse(null);
             if (actualDTO != null) {
                 AuthorDTO receivedDTO = objectMapper.readValue(request.getReader(), AuthorDTO.class);
-                receivedDTO.setAuthorId(id);
+                receivedDTO.setId(id);
                 authorService.update(id, receivedDTO);
                 response.setContentType("application/json");
                 out.print(objectMapper.writeValueAsString(receivedDTO));
@@ -110,10 +110,10 @@ public class AuthorServlet extends HttpServlet {
                 authorService.delete(id);
                 response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             } else {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             }
         } else {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 }
