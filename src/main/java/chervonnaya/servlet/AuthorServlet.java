@@ -40,8 +40,8 @@ public class AuthorServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         if (pathInfo == null || pathInfo.equals("/")) {
-            Set<AuthorDTO> persons = authorService.getAll();
-            out.print(objectMapper.writeValueAsString(persons));
+            Set<AuthorDTO> authors = authorService.getAll();
+            out.print(objectMapper.writeValueAsString(authors));
         } else {
             String[] splits = pathInfo.split("/");
             if (splits.length == 2) {
@@ -60,21 +60,21 @@ public class AuthorServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws  ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        PrintWriter out = response.getWriter();
         try {
             AuthorDTO authorDTO = objectMapper.readValue(request.getReader(), AuthorDTO.class);
-            authorService.save(authorDTO);
+            Long id = authorService.save(authorDTO);
             response.setStatus(HttpServletResponse.SC_CREATED);
+            out.write("Author created with ID: " + id);
         } catch (JsonParseException | JsonMappingException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\":\"Invalid JSON format\"}");
         } catch (IOException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\":\"Error reading request\"}");
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\":\"Internal server error\"}");
         }
+        out.flush();
     }
 
     @Override

@@ -63,9 +63,9 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
         return copySet;
     }
 
-    public void create(CopyDTO dto){
+    public Long create(CopyDTO dto){
         try(Connection connection = ConnectionManager.getConnection();
-            PreparedStatement copyStatement = connection.prepareStatement(INSERT_COPY_SQL)) {
+            PreparedStatement copyStatement = connection.prepareStatement(INSERT_COPY_SQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
             copyStatement.setString(1, dto.getTitle());
             copyStatement.setString(2, dto.getLanguage().name());
             copyStatement.setDouble(3, dto.getPrice());
@@ -78,6 +78,9 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
             if (affectedRows == 0) {
                 throw new DatabaseOperationException("Creating copy failed, no rows affected.");
             }
+            ResultSet copySet = copyStatement.getGeneratedKeys();
+            copySet.next();
+            return copySet.getLong(1);
         } catch (SQLException e) {
             throw new DatabaseOperationException("Creating copy failed", e);
         }

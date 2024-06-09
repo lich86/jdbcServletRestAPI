@@ -67,9 +67,9 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
 
     }
 
-    public void create(AuthorDTO dto) {
+    public Long create(AuthorDTO dto) {
         try (Connection connection = ConnectionManager.getConnection();
-             PreparedStatement authorStatement = connection.prepareStatement(INSERT_AUTHOR_SQL)) {
+             PreparedStatement authorStatement = connection.prepareStatement(INSERT_AUTHOR_SQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
             authorStatement.setString(1, dto.getFirstName());
             authorStatement.setString(2, dto.getLastName());
             authorStatement.setString(3, Optional.of(dto.getMiddleName()).orElse(null));
@@ -80,6 +80,9 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
             if (affectedRows == 0) {
                 throw new DatabaseOperationException("Creating author failed, no rows affected.");
             }
+            ResultSet authorResult = authorStatement.getGeneratedKeys();
+            authorResult.next();
+            return authorResult.getLong(1);
         } catch (SQLException e) {
             throw new DatabaseOperationException("Creating author failed", e);
         }

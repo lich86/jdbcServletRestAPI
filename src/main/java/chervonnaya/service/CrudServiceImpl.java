@@ -36,7 +36,7 @@ public class CrudServiceImpl<E extends BaseEntity, D extends BaseDTO, R extends 
         if(entity.isPresent()) {
             return Optional.of(mapper.map(entity.get()));
         } else {
-            logger.error("Couldn't found " + genericType.getSimpleName().toLowerCase() + ", id: " + id);
+            logger.error("Couldn't find " + genericType.getSimpleName().toLowerCase() + ", id: " + id);
             throw new EntityNotFoundException("Couldn't found " + genericType.getSimpleName().toLowerCase() + ", id: " + id);
         }
     }
@@ -54,10 +54,11 @@ public class CrudServiceImpl<E extends BaseEntity, D extends BaseDTO, R extends 
     }
 
     @Override
-    public void save(D d) {
+    public Long save(D d) {
         try {
-            repository.create(d);
+            Long id = repository.create(d);
             logger.info("New " + genericType.getSimpleName().toLowerCase() + " is created, id: " + d.getId());
+            return id;
         } catch (SQLException e) {
             logger.error("Unable to create new " + genericType.getSimpleName().toLowerCase());
             throw new CreateEntityException("Unable to create new " + genericType.getSimpleName().toLowerCase(), e);

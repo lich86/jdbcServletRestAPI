@@ -42,8 +42,8 @@ public class CopyServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         if (pathInfo == null || pathInfo.equals("/")) {
-            Set<CopyDTO> persons = copyService.getAll();
-            out.print(objectMapper.writeValueAsString(persons));
+            Set<CopyDTO> copies = copyService.getAll();
+            out.print(objectMapper.writeValueAsString(copies));
         } else {
             String[] splits = pathInfo.split("/");
             if (splits.length == 2) {
@@ -63,20 +63,20 @@ public class CopyServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws  ServletException, IOException {
+        PrintWriter out = response.getWriter();
         try {
             CopyDTO copyDTO = objectMapper.readValue(request.getReader(), CopyDTO.class);
-            copyService.save(copyDTO);
+            Long id = copyService.save(copyDTO);
             response.setStatus(HttpServletResponse.SC_CREATED);
+            out.print("Copy created with ID: " + id);
         } catch (JsonParseException | JsonMappingException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\":\"Invalid JSON format\"}");
         } catch (IOException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\":\"Error reading request\"}");
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\":\"Internal server error\"}");
         }
+        out.flush();
     }
 
     @Override

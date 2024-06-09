@@ -65,7 +65,7 @@ public class BookDAO implements
         return bookSet;
     }
 
-    public void create(BookDTO dto) {
+    public Long create(BookDTO dto) {
         try (Connection connection = ConnectionManager.getConnection()){
             connection.setAutoCommit(false);
             try(PreparedStatement bookStatement = connection.prepareStatement(INSERT_BOOK_SQL, PreparedStatement.RETURN_GENERATED_KEYS);
@@ -88,6 +88,9 @@ public class BookDAO implements
                 }
                 authorStatement.executeBatch();
                 connection.commit();
+                ResultSet bookResult = authorStatement.getGeneratedKeys();
+                bookResult.next();
+                return bookResult.getLong(1);
             } catch (SQLException e) {
                 connection.rollback();
                 throw new DatabaseOperationException("Creating book failed, no rows affected.");

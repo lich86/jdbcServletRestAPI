@@ -10,7 +10,7 @@ public interface CrudService <D extends BaseDTO> {
 
     Set<D> getAll();
 
-    void save(D d);
+    Long save(D d);
 
     void update(Long id, D d);
 

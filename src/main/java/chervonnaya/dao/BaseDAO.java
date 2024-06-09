@@ -10,7 +10,7 @@ import java.util.Set;
 public interface BaseDAO<E extends BaseEntity, D extends BaseDTO> {
     Optional<E> findById(Long id);
     Set<E> findAll();
-    void create(D d) throws SQLException;
+    Long create(D d) throws SQLException;
     void update(Long id, D d) throws SQLException;
     void delete(Long id) throws SQLException;
 
