@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- Создание таблицы авторов
+-- table author creation
 CREATE TABLE author 
 (
 	author_id BIGINT AUTO_INCREMENT NOT NULL, 
@@ -8,27 +8,28 @@ CREATE TABLE author
 	last_name VARCHAR(32) NOT NULL, 
 	middle_name VARCHAR(32), 
 	pen_name VARCHAR(64), 
-	PRIMARY KEY (author_id)),
-	FOREIGN KEY (author_id) REFERENCES author (author_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+	PRIMARY KEY (author_id))
 )
--- Создание таблицы книг
+-- table book creation
 CREATE TABLE book 
 (
 	book_id BIGINT AUTO_INCREMENT NOT NULL, 
 	description TEXT, 
 	original_language ENUM('ENGLISH', 'SPANISH', 'RUSSIAN'), 
 	original_title VARCHAR(64) NOT NULL, 
-	PRIMARY KEY (book_id)),
-	FOREIGN KEY (book_id) REFERENCES book (book_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+	PRIMARY KEY (book_id))
 )
--- Создание таблицы связи автор-книга
+-- table book_author creation
 CREATE TABLE book_author 
 (
 	book_id BIGINT NOT NULL, 
 	author_id BIGINT NOT NULL, 
-	CONSTRAINT PK_BOOK_AUTHOR PRIMARY KEY (book_id, author_id));
+	PRIMARY KEY (book_id, author_id))
+	FOREIGN KEY (`author_id`) REFERENCES `author` (`author_id`),
+	FOREIGN KEY (`book_id`) REFERENCES `book` (`book_id`);
+	)
 
--- Создание таблицы экземпляров книг
+-- table copies creation
 
 CREATE TABLE copies 
 	(
@@ -40,5 +41,6 @@ CREATE TABLE copies
 	title VARCHAR(64) NOT NULL, 
 	translator VARCHAR(64), 
 	book_id BIGINT NOT NULL, 
-	CONSTRAINT PK_COPIES PRIMARY KEY (copy_id));
+	PRIMARY KEY (copy_id)),
+	FOREIGN KEY (`book_id`) REFERENCES `book` (`book_id`);
 	)
