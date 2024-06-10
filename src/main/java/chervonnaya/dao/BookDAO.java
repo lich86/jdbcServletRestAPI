@@ -71,14 +71,23 @@ public class BookDAO implements
             try(PreparedStatement bookStatement = connection.prepareStatement(INSERT_BOOK_SQL, PreparedStatement.RETURN_GENERATED_KEYS);
                 PreparedStatement authorStatement = connection.prepareStatement(SET_AUTHOR_SQL)) {
                 bookStatement.setString(1, dto.getOriginalTitle());
-                bookStatement.setString(2, Optional.of(dto.getOriginalTitle()).orElse(null));
-                bookStatement.setString(3, Optional.of(dto.getDescription()).orElse(null));
-
+                if(dto.getOriginalLanguage() != null) {
+                    bookStatement.setString(2, dto.getOriginalLanguage().name());
+                } else {
+                    bookStatement.setNull(2, Types.NULL);
+                }
+                if(dto.getDescription() != null) {
+                    bookStatement.setString(3, dto.getDescription());
+                } else {
+                    bookStatement.setNull(3, Types.NULL);
+                }
                 int affectedRows = bookStatement.executeUpdate();
                 if (affectedRows == 0) {
                     throw new SQLException("Creating book failed, no rows affected.");
                 }
-                Long bookId = bookStatement.getGeneratedKeys().getLong(1);
+                ResultSet bookResult = bookStatement.getGeneratedKeys();
+                bookResult.next();
+                long bookId = bookResult.getLong(1);
                 if (!dto.getAuthorIds().isEmpty()) {
                     for (Long authorId : dto.getAuthorIds()) {
                         authorStatement.setLong(1, bookId);
@@ -88,12 +97,10 @@ public class BookDAO implements
                 }
                 authorStatement.executeBatch();
                 connection.commit();
-                ResultSet bookResult = authorStatement.getGeneratedKeys();
-                bookResult.next();
-                return bookResult.getLong(1);
+                return bookId;
             } catch (SQLException e) {
                 connection.rollback();
-                throw new DatabaseOperationException("Creating book failed, no rows affected.");
+                throw new DatabaseOperationException("Creating book failed.");
             } finally {
                 connection.setAutoCommit(true);
             }
@@ -112,8 +119,16 @@ public class BookDAO implements
                 PreparedStatement authorUnsetStatement = connection.prepareStatement(DELETE_BOOK_AUTHOR_SQL);
                 PreparedStatement authorSetStatement = connection.prepareStatement(SET_AUTHOR_SQL)) {
                 bookStatement.setString(1, dto.getOriginalTitle());
-                bookStatement.setString(2, Optional.of(dto.getOriginalTitle()).orElse(null));
-                bookStatement.setString(3, Optional.of(dto.getDescription()).orElse(null));
+                if(dto.getOriginalTitle() != null) {
+                    bookStatement.setString(2, dto.getOriginalTitle());
+                } else {
+                    bookStatement.setNull(2, Types.NULL);
+                }
+                if(dto.getDescription() != null) {
+                    bookStatement.setString(3, dto.getDescription());
+                } else {
+                    bookStatement.setNull(3, Types.NULL);
+                }
                 bookStatement.setLong(4, bookId);
                 int affectedRows = bookStatement.executeUpdate();
                 if (affectedRows == 0) {

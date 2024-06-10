@@ -7,7 +7,6 @@ import chervonnaya.model.Book;
 import chervonnaya.util.ConnectionManager;
 import chervonnaya.dao.mappers.AuthorDBMapper;
 import chervonnaya.dao.mappers.BookDBMapper;
-import chervonnaya.dao.mappers.CopyDBMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,6 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
     private static final String DELETE_BOOK_AUTHOR_SQL = "DELETE FROM book_author WHERE author_id = ?";
     private final AuthorDBMapper authorDBMapper = AuthorDBMapper.INSTANCE;
     private final BookDBMapper bookDBMapper = BookDBMapper.INSTANCE;
-    private final CopyDBMapper copyDBMapper = CopyDBMapper.INSTANCE;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthorDAO.class);
 
@@ -72,8 +70,16 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
              PreparedStatement authorStatement = connection.prepareStatement(INSERT_AUTHOR_SQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
             authorStatement.setString(1, dto.getFirstName());
             authorStatement.setString(2, dto.getLastName());
-            authorStatement.setString(3, Optional.of(dto.getMiddleName()).orElse(null));
-            authorStatement.setString(4, Optional.of(dto.getPenName()).orElse(null));
+            if(dto.getMiddleName() != null) {
+                authorStatement.setString(3, dto.getMiddleName());
+            } else {
+                authorStatement.setNull(3, Types.NULL);
+            }
+            if(dto.getPenName() != null) {
+                authorStatement.setString(4, dto.getPenName());
+            } else {
+                authorStatement.setNull(4, Types.NULL);
+            }
 
             int affectedRows = authorStatement.executeUpdate();
 
@@ -93,8 +99,16 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
              PreparedStatement authorStatement = connection.prepareStatement(UPDATE_AUTHOR_SQL)) {
             authorStatement.setString(1, dto.getFirstName());
             authorStatement.setString(2, dto.getLastName());
-            authorStatement.setString(3, Optional.of(dto.getMiddleName()).orElse(null));
-            authorStatement.setString(4, Optional.of(dto.getPenName()).orElse(null));
+            if(dto.getMiddleName() != null) {
+                authorStatement.setString(3, dto.getMiddleName());
+            } else {
+                authorStatement.setNull(3, Types.NULL);
+            }
+            if(dto.getPenName() != null) {
+                authorStatement.setString(4, dto.getPenName());
+            } else {
+                authorStatement.setNull(4, Types.NULL);
+            }
             authorStatement.setLong(5, authorId);
 
             int affectedRows = authorStatement.executeUpdate();
@@ -120,7 +134,7 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
                 booksFindStatement.setLong(1, authorId);
                 ResultSet booksToDelete = booksFindStatement.executeQuery();
                 while (booksToDelete.next()) {
-                    Long bookId = booksToDelete.getLong("book_id");
+                    long bookId = booksToDelete.getLong("book_id");
                     copyDeleteStatement.setLong(1, bookId);
                     copyDeleteStatement.addBatch();
                     bookDeleteStatement.setLong(1, bookId);

@@ -15,8 +15,8 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
     private static final String FIND_BY_ID_SQL = "SELECT * FROM copies WHERE copy_id = ?";
     private static final String FIND_ALL_COPIES = "SELECT * FROM copies";
     private static final String FIND_BOOK_BY_COPY_ID_SQL = "SELECT * FROM book b JOIN copies c ON b.book_id = c.book_id WHERE copy_id = ?";
-    private static final String INSERT_COPY_SQL = "INSERT INTO copies (title, language, price, publishingHouse, publishingYear, translator, book_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    private static final String UPDATE_COPY_SQL = "UPDATE copies SET title = ?, language = ?, price = ?, publishingHouse = ?, publishingYear = ?, translator = ?, book_id = ? WHERE copy_id = ?";
+    private static final String INSERT_COPY_SQL = "INSERT INTO copies (title, language, price, publishing_house, publishing_year, translator, book_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    private static final String UPDATE_COPY_SQL = "UPDATE copies SET title = ?, language = ?, price = ?, publishing_house = ?, publishing_year = ?, translator = ?, book_id = ? WHERE copy_id = ?";
     private static final String DELETE_COPY_SQL = "DELETE FROM copies WHERE copy_id = ?";
     private final CopyDBMapper copyDBMapper = CopyDBMapper.INSTANCE;
     private final BookDBMapper bookDBMapper = BookDBMapper.INSTANCE;
@@ -69,9 +69,21 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
             copyStatement.setString(1, dto.getTitle());
             copyStatement.setString(2, dto.getLanguage().name());
             copyStatement.setDouble(3, dto.getPrice());
-            copyStatement.setString(4, Optional.of(dto.getPublishingHouse()).orElse(null));
-            copyStatement.setString(5, Optional.of(dto.getPublishingYear().toString()).orElse(null));
-            copyStatement.setString(6, Optional.of(dto.getTranslator()).orElse(null));
+            if(dto.getPublishingHouse() != null) {
+                copyStatement.setString(4, dto.getPublishingHouse());
+            } else {
+                copyStatement.setNull(4, Types.NULL);
+            }
+            if(dto.getPublishingYear() != null) {
+                copyStatement.setString(5, dto.getPublishingYear().toString());
+            } else {
+                copyStatement.setNull(5, Types.NULL);
+            }
+            if(dto.getTranslator() != null) {
+                copyStatement.setString(6, dto.getTranslator());
+            } else {
+                copyStatement.setNull(6, Types.NULL);
+            }
             copyStatement.setLong(7, dto.getBookId());
 
             int affectedRows = copyStatement.executeUpdate();
@@ -92,9 +104,21 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
             copyStatement.setString(1, dto.getTitle());
             copyStatement.setString(2, dto.getLanguage().name());
             copyStatement.setDouble(3, dto.getPrice());
-            copyStatement.setString(4, Optional.of(dto.getPublishingHouse()).orElse(null));
-            copyStatement.setString(5, Optional.of(dto.getPublishingYear().toString()).orElse(null));
-            copyStatement.setString(6, Optional.of(dto.getTranslator()).orElse(null));
+            if(dto.getPublishingHouse() != null) {
+                copyStatement.setString(4, dto.getPublishingHouse());
+            } else {
+                copyStatement.setNull(4, Types.NULL);
+            }
+            if(dto.getPublishingYear() != null) {
+                copyStatement.setString(5, dto.getPublishingYear().toString());
+            } else {
+                copyStatement.setNull(5, Types.NULL);
+            }
+            if(dto.getTranslator() != null) {
+                copyStatement.setString(6, dto.getTranslator());
+            } else {
+                copyStatement.setNull(6, Types.NULL);
+            }
             copyStatement.setLong(7, dto.getBookId());
             copyStatement.setLong(8, copyId);
 

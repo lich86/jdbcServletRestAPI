@@ -19,13 +19,13 @@ CREATE INDEX FKbjqhp85wjv8vpr0beygh6jsgo ON book_author(author_id);
 CREATE INDEX FKehypmeqyjco3f5bf9axaumc6k ON copies(book_id);
 
 -- changeset User:1718035475845-7
-ALTER TABLE book_author ADD CONSTRAINT FKbjqhp85wjv8vpr0beygh6jsgo FOREIGN KEY (author_id) REFERENCES author (author_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+ALTER TABLE book_author ADD CONSTRAINT FKbjqhp85wjv8vpr0beygh6jsgo FOREIGN KEY (author_id) REFERENCES author (author_id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 -- changeset User:1718035475845-8
-ALTER TABLE copies ADD CONSTRAINT FKehypmeqyjco3f5bf9axaumc6k FOREIGN KEY (book_id) REFERENCES book (book_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+ALTER TABLE copies ADD CONSTRAINT FKehypmeqyjco3f5bf9axaumc6k FOREIGN KEY (book_id) REFERENCES book (book_id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 -- changeset User:1718035475845-9
-ALTER TABLE book_author ADD CONSTRAINT FKhwgu59n9o80xv75plf9ggj7xn FOREIGN KEY (book_id) REFERENCES book (book_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+ALTER TABLE book_author ADD CONSTRAINT FKhwgu59n9o80xv75plf9ggj7xn FOREIGN KEY (book_id) REFERENCES book (book_id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 
