@@ -4,12 +4,12 @@ import chervonnaya.dao.exception.DatabaseOperationException;
 import chervonnaya.dto.AuthorDTO;
 import chervonnaya.model.Author;
 import chervonnaya.model.Book;
-import chervonnaya.util.ConnectionManager;
 import chervonnaya.dao.mappers.AuthorDBMapper;
 import chervonnaya.dao.mappers.BookDBMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
 
@@ -28,11 +28,16 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthorDAO.class);
 
+    private DataSource dataSource;
+
+    public AuthorDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     @Override
     public Optional<Author> findById(Long authorId) {
         Author author = null;
-        try (Connection connection = ConnectionManager.getConnection();
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement authorStatement = connection.prepareStatement(FIND_BY_ID_SQL);
              PreparedStatement booksStatement = connection.prepareStatement(FIND_BOOKS_BY_AUTHOR_ID_SQL)) {
 
@@ -51,7 +56,7 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
     @Override
     public Set<Author> findAll(){
         Set<Author> authorSet = new HashSet<>();
-        try (Connection connection = ConnectionManager.getConnection();
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement allAuthorsStatement = connection.prepareStatement(FIND_ALL_AUTHORS);
              PreparedStatement booksStatement = connection.prepareStatement(FIND_BOOKS_BY_AUTHOR_ID_SQL)) {
             ResultSet authorResultSet = allAuthorsStatement.executeQuery();
@@ -66,7 +71,7 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
     }
 
     public Long create(AuthorDTO dto) {
-        try (Connection connection = ConnectionManager.getConnection();
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement authorStatement = connection.prepareStatement(INSERT_AUTHOR_SQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
             authorStatement.setString(1, dto.getFirstName());
             authorStatement.setString(2, dto.getLastName());
@@ -95,7 +100,7 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
     }
 
     public void update(Long authorId, AuthorDTO dto) {
-        try (Connection connection = ConnectionManager.getConnection();
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement authorStatement = connection.prepareStatement(UPDATE_AUTHOR_SQL)) {
             authorStatement.setString(1, dto.getFirstName());
             authorStatement.setString(2, dto.getLastName());
@@ -124,7 +129,7 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
     }
 
     public void delete(Long authorId) {
-        try (Connection connection = ConnectionManager.getConnection()){
+        try (Connection connection = dataSource.getConnection()){
             connection.setAutoCommit(false);
             try(PreparedStatement authorDeleteStatement = connection.prepareStatement(DELETE_AUTHOR_SQL);
                 PreparedStatement booksFindStatement = connection.prepareStatement(FIND_BOOKS_BY_AUTHOR_ID_SQL);

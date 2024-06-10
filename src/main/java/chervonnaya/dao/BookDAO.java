@@ -6,11 +6,11 @@ import chervonnaya.dto.BookDTO;
 import chervonnaya.model.Author;
 import chervonnaya.model.Book;
 import chervonnaya.model.Copy;
-import chervonnaya.util.ConnectionManager;
 import chervonnaya.dao.mappers.AuthorDBMapper;
 import chervonnaya.dao.mappers.BookDBMapper;
 import chervonnaya.dao.mappers.CopyDBMapper;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
 
@@ -32,9 +32,15 @@ public class BookDAO implements
     private final BookDBMapper bookDBMapper = BookDBMapper.INSTANCE;
     private final CopyDBMapper copyDBMapper = CopyDBMapper.INSTANCE;
 
+    private DataSource dataSource;
+
+    public BookDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     public Optional<Book> findById(Long bookId) {
         Book book = null;
-        try(Connection connection = ConnectionManager.getConnection();
+        try(Connection connection = dataSource.getConnection();
             PreparedStatement bookStatement = connection.prepareStatement(FIND_BY_ID_SQL);
             PreparedStatement authorsStatement = connection.prepareStatement(FIND_AUTHORS_BY_BOOK_ID_SQL);
             PreparedStatement copiesStatement = connection.prepareStatement(FIND_COPIES_BY_BOOK_ID_SQL)) {
@@ -51,7 +57,7 @@ public class BookDAO implements
 
     public Set<Book> findAll() {
         Set<Book> bookSet = new HashSet<>();
-        try (Connection connection = ConnectionManager.getConnection();
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement allBooksStatement = connection.prepareStatement(FIND_ALL_BOOKS_SQL);
              PreparedStatement authorsStatement = connection.prepareStatement(FIND_AUTHORS_BY_BOOK_ID_SQL);
              PreparedStatement copiesStatement = connection.prepareStatement(FIND_COPIES_BY_BOOK_ID_SQL)){
@@ -66,7 +72,7 @@ public class BookDAO implements
     }
 
     public Long create(BookDTO dto) {
-        try (Connection connection = ConnectionManager.getConnection()){
+        try (Connection connection = dataSource.getConnection()){
             connection.setAutoCommit(false);
             try(PreparedStatement bookStatement = connection.prepareStatement(INSERT_BOOK_SQL, PreparedStatement.RETURN_GENERATED_KEYS);
                 PreparedStatement authorStatement = connection.prepareStatement(SET_AUTHOR_SQL)) {
@@ -112,7 +118,7 @@ public class BookDAO implements
     }
 
     public void update(Long bookId, BookDTO dto) {
-        try(Connection connection = ConnectionManager.getConnection()) {
+        try(Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
             try(PreparedStatement bookStatement = connection.prepareStatement(UPDATE_BOOK_SQL);
                 PreparedStatement authorsFindStatement = connection.prepareStatement(FIND_AUTHOR_IDS_BY_BOOK_ID_SQL);
@@ -160,7 +166,7 @@ public class BookDAO implements
     }
 
     public void delete(Long bookId) {
-        try(Connection connection = ConnectionManager.getConnection()) {
+        try(Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
             try(PreparedStatement bookDeleteStatement = connection.prepareStatement(DELETE_BOOK_SQL);
                 PreparedStatement copyDeleteStatement = connection.prepareStatement(DELETE_COPY_BY_BOOK_ID_SQL)) {

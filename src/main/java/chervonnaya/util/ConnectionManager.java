@@ -3,7 +3,7 @@ package chervonnaya.util;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import java.sql.Connection;
+import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.io.InputStream;
@@ -35,8 +35,8 @@ public class ConnectionManager {
         }
     }
 
-    public static Connection getConnection() throws SQLException {
-        return dataSource.getConnection();
+    public static DataSource getDataSource() throws SQLException {
+        return dataSource;
     }
 
     public static void closeDataSource() {
@@ -44,5 +44,6 @@ public class ConnectionManager {
             dataSource.close();
         }
     }
+
 }
 

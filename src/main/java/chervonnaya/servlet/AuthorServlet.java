@@ -5,6 +5,7 @@ import chervonnaya.dto.AuthorDTO;
 import chervonnaya.model.Author;
 import chervonnaya.service.AuthorServiceImpl;
 import chervonnaya.service.mappers.AuthorMapper;
+import chervonnaya.util.ConnectionManager;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +18,7 @@ import org.mapstruct.factory.Mappers;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.Set;
 
 @WebServlet("/author/*")
@@ -27,7 +29,11 @@ public class AuthorServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        this.authorService = new AuthorServiceImpl(new AuthorDAO(), Author.class, Mappers.getMapper(AuthorMapper.class));
+        try {
+            this.authorService = new AuthorServiceImpl(new AuthorDAO(ConnectionManager.getDataSource()), Author.class, Mappers.getMapper(AuthorMapper.class));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         this.objectMapper = new ObjectMapper();
     }
 

@@ -5,6 +5,7 @@ import chervonnaya.dto.BookDTO;
 import chervonnaya.model.Book;
 import chervonnaya.service.BookServiceImpl;
 import chervonnaya.service.mappers.BookMapper;
+import chervonnaya.util.ConnectionManager;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +18,7 @@ import org.mapstruct.factory.Mappers;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.Set;
 
 @WebServlet("/book/*")
@@ -27,7 +29,11 @@ public class BookServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        this.bookService = new BookServiceImpl(new BookDAO(), Book.class, Mappers.getMapper(BookMapper.class));
+        try {
+            this.bookService = new BookServiceImpl(new BookDAO(ConnectionManager.getDataSource()), Book.class, Mappers.getMapper(BookMapper.class));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         this.objectMapper = new ObjectMapper();
     }
 

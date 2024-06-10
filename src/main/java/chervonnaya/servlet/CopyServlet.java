@@ -5,6 +5,7 @@ import chervonnaya.dto.CopyDTO;
 import chervonnaya.model.Copy;
 import chervonnaya.service.CopyServiceImpl;
 import chervonnaya.service.mappers.CopyMapper;
+import chervonnaya.util.ConnectionManager;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,6 +19,7 @@ import org.mapstruct.factory.Mappers;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.Set;
 
 @WebServlet("/copy/*")
@@ -28,7 +30,11 @@ public class CopyServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        this.copyService = new CopyServiceImpl(new CopyDAO(), Copy.class, Mappers.getMapper(CopyMapper.class));
+        try {
+            this.copyService = new CopyServiceImpl(new CopyDAO(ConnectionManager.getDataSource()), Copy.class, Mappers.getMapper(CopyMapper.class));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         this.objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
     }

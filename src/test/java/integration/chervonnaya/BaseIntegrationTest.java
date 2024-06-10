@@ -1,5 +1,6 @@
 package chervonnaya;
 
+import chervonnaya.util.TestConnectionManager;
 import liquibase.Contexts;
 import liquibase.Liquibase;
 import liquibase.database.Database;
@@ -12,8 +13,8 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.DriverManager;
 
 @Testcontainers
 public abstract class BaseIntegrationTest {
@@ -26,6 +27,7 @@ public abstract class BaseIntegrationTest {
             .withPassword("test")
             .withExposedPorts(3306);
 
+    protected static DataSource dataSource;
     private static Connection connection;
 
 
@@ -39,7 +41,8 @@ public abstract class BaseIntegrationTest {
             String username = MY_SQL_CONTAINER.getUsername();
             String password = MY_SQL_CONTAINER.getPassword();
 
-            connection = DriverManager.getConnection(jdbcUrl, username, password);
+            dataSource = TestConnectionManager.getDataSource(jdbcUrl, username, password);
+            connection = dataSource.getConnection();
 
             logger.debug("Testcontainer started");
 

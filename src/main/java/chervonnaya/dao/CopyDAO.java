@@ -4,10 +4,10 @@ import chervonnaya.dao.exception.DatabaseOperationException;
 import chervonnaya.dto.CopyDTO;
 import chervonnaya.model.Book;
 import chervonnaya.model.Copy;
-import chervonnaya.util.ConnectionManager;
 import chervonnaya.dao.mappers.BookDBMapper;
 import chervonnaya.dao.mappers.CopyDBMapper;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
 
@@ -21,9 +21,15 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
     private final CopyDBMapper copyDBMapper = CopyDBMapper.INSTANCE;
     private final BookDBMapper bookDBMapper = BookDBMapper.INSTANCE;
 
+    private DataSource dataSource;
+
+    public CopyDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     public Optional<Copy> findById(Long copyId) {
         Copy copy = null;
-        try(Connection connection = ConnectionManager.getConnection();
+        try(Connection connection = dataSource.getConnection();
             PreparedStatement copyStatement = connection.prepareStatement(FIND_BY_ID_SQL);
             PreparedStatement bookStatement = connection.prepareStatement(FIND_BOOK_BY_COPY_ID_SQL)) {
             copyStatement.setLong(1, copyId);
@@ -44,7 +50,7 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
 
     public Set<Copy> findAll() {
         Set<Copy> copySet = new HashSet<>();
-        try (Connection connection = ConnectionManager.getConnection();
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement copyStatement = connection.prepareStatement(FIND_ALL_COPIES);
              PreparedStatement bookStatement = connection.prepareStatement(FIND_BOOK_BY_COPY_ID_SQL)){
             ResultSet copyResultSet = copyStatement.executeQuery();
@@ -64,7 +70,7 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
     }
 
     public Long create(CopyDTO dto){
-        try(Connection connection = ConnectionManager.getConnection();
+        try(Connection connection = dataSource.getConnection();
             PreparedStatement copyStatement = connection.prepareStatement(INSERT_COPY_SQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
             copyStatement.setString(1, dto.getTitle());
             copyStatement.setString(2, dto.getLanguage().name());
@@ -99,7 +105,7 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
     }
 
     public void update(Long copyId, CopyDTO dto) {
-        try(Connection connection = ConnectionManager.getConnection();
+        try(Connection connection = dataSource.getConnection();
             PreparedStatement copyStatement = connection.prepareStatement(UPDATE_COPY_SQL)) {
             copyStatement.setString(1, dto.getTitle());
             copyStatement.setString(2, dto.getLanguage().name());
@@ -132,7 +138,7 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
     }
 
     public void delete(Long copyId) {
-        try(Connection connection = ConnectionManager.getConnection();
+        try(Connection connection = dataSource.getConnection();
             PreparedStatement copyDeleteStatement = connection.prepareStatement(DELETE_COPY_SQL)) {
             copyDeleteStatement.setLong(1, copyId);
             int affectedRows = copyDeleteStatement.executeUpdate();
