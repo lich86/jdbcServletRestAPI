@@ -10,6 +10,8 @@ import chervonnaya.util.ConnectionManager;
 import chervonnaya.dao.mappers.AuthorDBMapper;
 import chervonnaya.dao.mappers.BookDBMapper;
 import chervonnaya.dao.mappers.CopyDBMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.*;
@@ -27,10 +29,11 @@ public class BookDAO implements
     private static final String UPDATE_BOOK_SQL = "UPDATE book SET original_title = ?, original_language = ?, description = ? WHERE book_id = ?";
     private static final String DELETE_BOOK_SQL = "DELETE FROM book WHERE book_id = ?";
     private static final String DELETE_COPY_BY_BOOK_ID_SQL = "DELETE FROM copies WHERE book_id = ?";
-    private static final String DELETE_BOOK_AUTHOR_SQL = "DELETE FROM book_author WHERE book_id = ? AND author_id = ?";
+    private static final String DELETE_BOOK_AUTHOR_SQL = "DELETE FROM book_author WHERE book_id = ?";
     private final AuthorDBMapper authorDBMapper = AuthorDBMapper.INSTANCE;
     private final BookDBMapper bookDBMapper = BookDBMapper.INSTANCE;
     private final CopyDBMapper copyDBMapper = CopyDBMapper.INSTANCE;
+    private static final Logger logger = LoggerFactory.getLogger(BookDAO.class);
 
     public Optional<Book> findById(Long bookId) {
         Book book = null;
@@ -71,14 +74,16 @@ public class BookDAO implements
             try(PreparedStatement bookStatement = connection.prepareStatement(INSERT_BOOK_SQL, PreparedStatement.RETURN_GENERATED_KEYS);
                 PreparedStatement authorStatement = connection.prepareStatement(SET_AUTHOR_SQL)) {
                 bookStatement.setString(1, dto.getOriginalTitle());
-                bookStatement.setString(2, Optional.of(dto.getOriginalTitle()).orElse(null));
+                bookStatement.setString(2, Optional.of(dto.getOriginalLanguage().toString()).orElse(null));
                 bookStatement.setString(3, Optional.of(dto.getDescription()).orElse(null));
-
                 int affectedRows = bookStatement.executeUpdate();
                 if (affectedRows == 0) {
-                    throw new SQLException("Creating book failed, no rows affected.");
+                    throw new DatabaseOperationException("Creating book failed, no rows affected.");
                 }
-                Long bookId = bookStatement.getGeneratedKeys().getLong(1);
+                ResultSet bookSet = bookStatement.getGeneratedKeys();
+                bookSet.next();
+                Long bookId = bookSet.getLong(1);
+
                 if (!dto.getAuthorIds().isEmpty()) {
                     for (Long authorId : dto.getAuthorIds()) {
                         authorStatement.setLong(1, bookId);
@@ -88,19 +93,16 @@ public class BookDAO implements
                 }
                 authorStatement.executeBatch();
                 connection.commit();
-                ResultSet bookResult = authorStatement.getGeneratedKeys();
-                bookResult.next();
-                return bookResult.getLong(1);
+                return bookId;
             } catch (SQLException e) {
                 connection.rollback();
-                throw new DatabaseOperationException("Creating book failed, no rows affected.");
+                throw new DatabaseOperationException("Creating book failed", e);
             } finally {
                 connection.setAutoCommit(true);
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new DatabaseOperationException("Creating book failed");
+            throw new DatabaseOperationException("Creating book failed", e);
         }
     }
 
@@ -112,7 +114,7 @@ public class BookDAO implements
                 PreparedStatement authorUnsetStatement = connection.prepareStatement(DELETE_BOOK_AUTHOR_SQL);
                 PreparedStatement authorSetStatement = connection.prepareStatement(SET_AUTHOR_SQL)) {
                 bookStatement.setString(1, dto.getOriginalTitle());
-                bookStatement.setString(2, Optional.of(dto.getOriginalTitle()).orElse(null));
+                bookStatement.setString(2, Optional.of(dto.getOriginalLanguage().toString()).orElse(null));
                 bookStatement.setString(3, Optional.of(dto.getDescription()).orElse(null));
                 bookStatement.setLong(4, bookId);
                 int affectedRows = bookStatement.executeUpdate();
@@ -148,7 +150,10 @@ public class BookDAO implements
         try(Connection connection = ConnectionManager.getConnection()) {
             connection.setAutoCommit(false);
             try(PreparedStatement bookDeleteStatement = connection.prepareStatement(DELETE_BOOK_SQL);
-                PreparedStatement copyDeleteStatement = connection.prepareStatement(DELETE_COPY_BY_BOOK_ID_SQL)) {
+                PreparedStatement copyDeleteStatement = connection.prepareStatement(DELETE_COPY_BY_BOOK_ID_SQL);
+                PreparedStatement manyToManyDeleteStatement = connection.prepareStatement(DELETE_BOOK_AUTHOR_SQL)) {
+                manyToManyDeleteStatement.setLong(1, bookId);
+                manyToManyDeleteStatement.executeUpdate();
                 copyDeleteStatement.setLong(1, bookId);
                 copyDeleteStatement.executeUpdate();
                 bookDeleteStatement.setLong(1, bookId);

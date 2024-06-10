@@ -1,5 +1,9 @@
 package chervonnaya;
 
+import chervonnaya.dto.AuthorDTO;
+import chervonnaya.dto.BookDTO;
+import chervonnaya.dto.CopyDTO;
+import chervonnaya.model.enums.Language;
 import liquibase.Contexts;
 import liquibase.Liquibase;
 import liquibase.database.Database;
@@ -8,14 +12,16 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.time.Year;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 @Testcontainers
 public abstract class BaseIntegrationTest {
@@ -23,7 +29,7 @@ public abstract class BaseIntegrationTest {
     private static final Logger logger = LoggerFactory.getLogger(BaseIntegrationTest.class);
     @Container
     public static MySQLContainer<?> MY_SQL_CONTAINER = new MySQLContainer<>("mysql:latest")
-            .withDatabaseName("test")
+            .withDatabaseName("jdbc_servlet")
             .withUsername("test")
             .withPassword("test")
             .withExposedPorts(3306);
@@ -62,6 +68,5 @@ public abstract class BaseIntegrationTest {
         }
         MY_SQL_CONTAINER.stop();
     }
-
 
 }
