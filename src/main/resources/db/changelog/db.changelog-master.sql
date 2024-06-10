@@ -1,4 +1,33 @@
---liquibase formatted sql
+-- liquibase formatted sql
+ALTER DROP table IF EXISTS
+-- changeset User:1718035475845-1
+CREATE TABLE author (author_id BIGINT AUTO_INCREMENT NOT NULL, first_name VARCHAR(32) NOT NULL, last_name VARCHAR(32) NOT NULL, middle_name VARCHAR(32) NULL, pen_name VARCHAR(64) NULL, CONSTRAINT PK_AUTHOR PRIMARY KEY (author_id));
+
+-- changeset User:1718035475845-2
+CREATE TABLE book (book_id BIGINT AUTO_INCREMENT NOT NULL, `description` TEXT NULL, original_language ENUM('ENGLISH', 'SPANISH', 'RUSSIAN') NULL, original_title VARCHAR(64) NOT NULL, CONSTRAINT PK_BOOK PRIMARY KEY (book_id));
+
+-- changeset User:1718035475845-3
+CREATE TABLE book_author (book_id BIGINT NOT NULL, author_id BIGINT NOT NULL, CONSTRAINT PK_BOOK_AUTHOR PRIMARY KEY (book_id, author_id));
+
+-- changeset User:1718035475845-4
+CREATE TABLE copies (copy_id BIGINT AUTO_INCREMENT NOT NULL, language ENUM('ENGLISH', 'SPANISH', 'RUSSIAN') NOT NULL, price DECIMAL(10, 2) NOT NULL, publishing_house VARCHAR(128) NULL, publishing_year YEAR(4) NULL, title VARCHAR(64) NOT NULL, translator VARCHAR(64) NULL, book_id BIGINT NOT NULL, CONSTRAINT PK_COPIES PRIMARY KEY (copy_id));
+
+-- changeset User:1718035475845-5
+CREATE INDEX FKbjqhp85wjv8vpr0beygh6jsgo ON book_author(author_id);
+
+-- changeset User:1718035475845-6
+CREATE INDEX FKehypmeqyjco3f5bf9axaumc6k ON copies(book_id);
+
+-- changeset User:1718035475845-7
+ALTER TABLE book_author ADD CONSTRAINT FKbjqhp85wjv8vpr0beygh6jsgo FOREIGN KEY (author_id) REFERENCES author (author_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+
+-- changeset User:1718035475845-8
+ALTER TABLE copies ADD CONSTRAINT FKehypmeqyjco3f5bf9axaumc6k FOREIGN KEY (book_id) REFERENCES book (book_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+
+-- changeset User:1718035475845-9
+ALTER TABLE book_author ADD CONSTRAINT FKhwgu59n9o80xv75plf9ggj7xn FOREIGN KEY (book_id) REFERENCES book (book_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+
+
 
 --populate authors
 

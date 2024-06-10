@@ -8,9 +8,7 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -47,7 +45,7 @@ public abstract class BaseIntegrationTest {
 
             Database database = new liquibase.database.core.MySQLDatabase();
             database.setConnection(new JdbcConnection(connection));
-            Liquibase liquibase = new Liquibase("db/changelog/db.changelog-master.yaml", new ClassLoaderResourceAccessor(), database);
+            Liquibase liquibase = new Liquibase("db/changelog/db.changelog-master.sql", new ClassLoaderResourceAccessor(), database);
             liquibase.update(new Contexts());
 
         } catch (Exception e) {
