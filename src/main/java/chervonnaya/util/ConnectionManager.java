@@ -4,19 +4,18 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.Properties;
 import java.io.InputStream;
 import java.io.IOException;
 
 public class ConnectionManager {
-    private static HikariDataSource dataSource;
+    private static final HikariDataSource dataSource;
 
     static {
         try (InputStream input = ConnectionManager.class.getClassLoader().getResourceAsStream("db.properties")) {
             Properties properties = new Properties();
             if (input == null) {
-                throw new IOException("Unable to find db.properties");
+                throw new IOException("Unable to find properties");
             }
             properties.load(input);
 
@@ -30,14 +29,14 @@ public class ConnectionManager {
 
             dataSource = new HikariDataSource(config);
         } catch (IOException e) {
-            e.printStackTrace();
             throw new ExceptionInInitializerError("Initialization failed: " + e.getMessage());
         }
     }
 
-    public static DataSource getDataSource() throws SQLException {
+    public static DataSource getDataSource() {
         return dataSource;
     }
+
 
     public static void closeDataSource() {
         if (dataSource != null && !dataSource.isClosed()) {

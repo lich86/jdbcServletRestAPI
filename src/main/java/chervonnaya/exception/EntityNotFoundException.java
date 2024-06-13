@@ -1,4 +1,4 @@
-package chervonnaya.dao.exception;
+package chervonnaya.exception;
 
 public class EntityNotFoundException extends RuntimeException{
     public EntityNotFoundException(String message, Throwable cause) {

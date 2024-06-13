@@ -1,10 +1,10 @@
 package chervonnaya.service;
 
 import chervonnaya.dao.BaseDAO;
-import chervonnaya.dao.exception.CreateEntityException;
-import chervonnaya.dao.exception.DeleteEntityException;
-import chervonnaya.dao.exception.EntityNotFoundException;
-import chervonnaya.dao.exception.UpdateEntityException;
+import chervonnaya.exception.CreateEntityException;
+import chervonnaya.exception.DeleteEntityException;
+import chervonnaya.exception.EntityNotFoundException;
+import chervonnaya.exception.UpdateEntityException;
 import chervonnaya.dto.BaseDTO;
 import chervonnaya.model.BaseEntity;
 import chervonnaya.service.mappers.BaseMapper;
@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,15 +36,14 @@ public class CrudServiceImpl<E extends BaseEntity, D extends BaseDTO, R extends 
             return Optional.of(mapper.map(entity.get()));
         } else {
             logger.error("Couldn't find " + genericType.getSimpleName().toLowerCase() + ", id: " + id);
-            throw new EntityNotFoundException("Couldn't found " + genericType.getSimpleName().toLowerCase() + ", id: " + id);
+            throw new EntityNotFoundException("Couldn't find " + genericType.getSimpleName().toLowerCase() + ", id: " + id);
         }
     }
 
     @Override
     public Set<D> getAll() {
         try {
-            Set<D> set = repository.findAll().stream().map(mapper::map).collect(Collectors.toSet());
-            return set;
+            return repository.findAll().stream().map(mapper::map).collect(Collectors.toSet());
         } catch (Exception e) {
             logger.error("Unable to retrieve all" + genericType.getSimpleName().toLowerCase() + "s.");
             throw new EntityNotFoundException("Unable to retrieve all" + genericType.getSimpleName().toLowerCase() + "s", e);

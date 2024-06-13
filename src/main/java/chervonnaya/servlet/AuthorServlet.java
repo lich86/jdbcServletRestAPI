@@ -16,24 +16,22 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.mapstruct.factory.Mappers;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.SQLException;
 import java.util.Set;
 
 @WebServlet("/author/*")
 public class AuthorServlet extends HttpServlet {
     private AuthorServiceImpl authorService;
     private ObjectMapper objectMapper;
+    private DataSource dataSource;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        try {
-            this.authorService = new AuthorServiceImpl(new AuthorDAO(ConnectionManager.getDataSource()), Author.class, Mappers.getMapper(AuthorMapper.class));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        dataSource = ConnectionManager.getDataSource();
+        this.authorService = new AuthorServiceImpl(new AuthorDAO(dataSource), Author.class, Mappers.getMapper(AuthorMapper.class));
         this.objectMapper = new ObjectMapper();
     }
 
@@ -72,7 +70,7 @@ public class AuthorServlet extends HttpServlet {
             AuthorDTO authorDTO = objectMapper.readValue(request.getReader(), AuthorDTO.class);
             Long id = authorService.save(authorDTO);
             response.setStatus(HttpServletResponse.SC_CREATED);
-            out.write("Author created with ID: " + id);
+            out.print("Author created with ID: " + id);
         } catch (JsonParseException | JsonMappingException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         } catch (IOException e) {

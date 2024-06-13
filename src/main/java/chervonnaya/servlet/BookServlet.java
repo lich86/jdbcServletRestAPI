@@ -16,24 +16,22 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.mapstruct.factory.Mappers;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.SQLException;
 import java.util.Set;
 
 @WebServlet("/book/*")
 public class BookServlet extends HttpServlet {
     private BookServiceImpl bookService;
     private ObjectMapper objectMapper;
+    DataSource dataSource;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        try {
-            this.bookService = new BookServiceImpl(new BookDAO(ConnectionManager.getDataSource()), Book.class, Mappers.getMapper(BookMapper.class));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        dataSource = ConnectionManager.getDataSource();
+        this.bookService = new BookServiceImpl(new BookDAO(dataSource), Book.class, Mappers.getMapper(BookMapper.class));
         this.objectMapper = new ObjectMapper();
     }
 
@@ -66,13 +64,13 @@ public class BookServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws  ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         PrintWriter out = response.getWriter();
         try {
             BookDTO bookDTO = objectMapper.readValue(request.getReader(), BookDTO.class);
             Long id = bookService.save(bookDTO);
             response.setStatus(HttpServletResponse.SC_CREATED);
-            out.write("Book created with ID: " + id);
+            out.print("Book created with ID: " + id);
         } catch (JsonParseException | JsonMappingException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         } catch (IOException e) {

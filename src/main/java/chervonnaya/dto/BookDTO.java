@@ -2,6 +2,7 @@ package chervonnaya.dto;
 
 import chervonnaya.model.enums.Language;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class BookDTO extends BaseDTO{
@@ -62,5 +63,18 @@ public class BookDTO extends BaseDTO{
 
     public void setAuthorIds(Set<Long> authorIds) {
         this.authorIds = authorIds;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BookDTO bookDTO = (BookDTO) o;
+        return originalTitle.equals(bookDTO.originalTitle) && originalLanguage == bookDTO.originalLanguage && Objects.equals(description, bookDTO.description) && Objects.equals(copyIds, bookDTO.copyIds) && authorIds.equals(bookDTO.authorIds);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(originalTitle, originalLanguage, description, copyIds, authorIds);
     }
 }

@@ -17,24 +17,23 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.mapstruct.factory.Mappers;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.SQLException;
 import java.util.Set;
 
 @WebServlet("/copy/*")
 public class CopyServlet extends HttpServlet {
     private CopyServiceImpl copyService;
     private ObjectMapper objectMapper;
+    private DataSource dataSource;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        try {
-            this.copyService = new CopyServiceImpl(new CopyDAO(ConnectionManager.getDataSource()), Copy.class, Mappers.getMapper(CopyMapper.class));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        dataSource = ConnectionManager.getDataSource();
+        this.copyService = new CopyServiceImpl(new CopyDAO(dataSource), Copy.class, Mappers.getMapper(CopyMapper.class));
+
         this.objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
     }
@@ -68,7 +67,7 @@ public class CopyServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws  ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         PrintWriter out = response.getWriter();
         try {
             CopyDTO copyDTO = objectMapper.readValue(request.getReader(), CopyDTO.class);

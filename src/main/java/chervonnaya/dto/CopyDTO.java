@@ -3,6 +3,7 @@ package chervonnaya.dto;
 import chervonnaya.model.enums.Language;
 
 import java.time.Year;
+import java.util.Objects;
 
 public class CopyDTO extends BaseDTO{
     private String title;
@@ -82,5 +83,18 @@ public class CopyDTO extends BaseDTO{
 
     public void setBookId(Long bookId) {
         this.bookId = bookId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CopyDTO copyDTO = (CopyDTO) o;
+        return title.equals(copyDTO.title) && language == copyDTO.language && price.equals(copyDTO.price) && Objects.equals(publishingHouse, copyDTO.publishingHouse) && Objects.equals(publishingYear, copyDTO.publishingYear) && Objects.equals(translator, copyDTO.translator) && bookId.equals(copyDTO.bookId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, language, price, publishingHouse, publishingYear, translator, bookId);
     }
 }

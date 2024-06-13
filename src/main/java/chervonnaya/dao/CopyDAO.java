@@ -1,6 +1,6 @@
 package chervonnaya.dao;
 
-import chervonnaya.dao.exception.DatabaseOperationException;
+import chervonnaya.exception.DatabaseOperationException;
 import chervonnaya.dto.CopyDTO;
 import chervonnaya.model.Book;
 import chervonnaya.model.Copy;
@@ -20,8 +20,7 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
     private static final String DELETE_COPY_SQL = "DELETE FROM copies WHERE copy_id = ?";
     private final CopyDBMapper copyDBMapper = CopyDBMapper.INSTANCE;
     private final BookDBMapper bookDBMapper = BookDBMapper.INSTANCE;
-
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     public CopyDAO(DataSource dataSource) {
         this.dataSource = dataSource;

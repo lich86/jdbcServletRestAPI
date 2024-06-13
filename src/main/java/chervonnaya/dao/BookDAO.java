@@ -1,7 +1,7 @@
 package chervonnaya.dao;
 
 
-import chervonnaya.dao.exception.DatabaseOperationException;
+import chervonnaya.exception.DatabaseOperationException;
 import chervonnaya.dto.BookDTO;
 import chervonnaya.model.Author;
 import chervonnaya.model.Book;
@@ -32,7 +32,7 @@ public class BookDAO implements
     private final BookDBMapper bookDBMapper = BookDBMapper.INSTANCE;
     private final CopyDBMapper copyDBMapper = CopyDBMapper.INSTANCE;
 
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     public BookDAO(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -125,8 +125,8 @@ public class BookDAO implements
                 PreparedStatement authorUnsetStatement = connection.prepareStatement(DELETE_BOOK_AUTHOR_SQL);
                 PreparedStatement authorSetStatement = connection.prepareStatement(SET_AUTHOR_SQL)) {
                 bookStatement.setString(1, dto.getOriginalTitle());
-                if(dto.getOriginalTitle() != null) {
-                    bookStatement.setString(2, dto.getOriginalTitle());
+                if(dto.getOriginalLanguage() != null) {
+                    bookStatement.setString(2, dto.getOriginalLanguage().name());
                 } else {
                     bookStatement.setNull(2, Types.NULL);
                 }
