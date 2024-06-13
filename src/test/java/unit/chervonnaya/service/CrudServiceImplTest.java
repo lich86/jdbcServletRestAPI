@@ -2,10 +2,11 @@ package chervonnaya.service;
 
 import chervonnaya.dao.BaseDAO;
 import chervonnaya.dto.BaseDTO;
-import chervonnaya.exception.DatabaseOperationException;
+import chervonnaya.exception.CreateEntityException;
 import chervonnaya.exception.EntityNotFoundException;
 import chervonnaya.model.BaseEntity;
 import chervonnaya.service.mappers.BaseMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Optional;
@@ -32,9 +34,19 @@ class CrudServiceImplTest {
     @InjectMocks
     private CrudServiceImpl<BaseEntity, BaseDTO, BaseDAO<BaseEntity, BaseDTO>> crudService;
 
+    private AutoCloseable closeable;
+
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
+    void setUp() throws NoSuchFieldException, IllegalAccessException {
+        closeable = MockitoAnnotations.openMocks(this);
+        Field genericTypeField = CrudServiceImpl.class.getDeclaredField("genericType");
+        genericTypeField.setAccessible(true);
+        genericTypeField.set(crudService, BaseEntity.class);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        closeable.close();
     }
 
     @Test
@@ -107,7 +119,7 @@ class CrudServiceImplTest {
         BaseDTO dto = new BaseDTO(null);
         Mockito.when(mockRepository.create(dto)).thenThrow(SQLException.class);
 
-        Assertions.assertThrows(DatabaseOperationException.class, () -> crudService.save(dto));
+        Assertions.assertThrows(CreateEntityException.class, () -> crudService.save(dto));
 
         Mockito.verify(mockRepository, Mockito.times(1)).create(dto);
     }
