@@ -2,6 +2,7 @@ package chervonnaya.model;
 
 import chervonnaya.model.enums.Language;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class Book extends BaseEntity {
@@ -62,5 +63,19 @@ public class Book extends BaseEntity {
 
     public void setAuthors(Set<Author> authors) {
         this.authors = authors;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Book book = (Book) o;
+        return originalTitle.equals(book.originalTitle) && originalLanguage == book.originalLanguage && Objects.equals(description, book.description) && Objects.equals(copies, book.copies) && Objects.equals(authors, book.authors);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), originalTitle, originalLanguage, description, copies, authors);
     }
 }

@@ -1,5 +1,6 @@
 package chervonnaya.model;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class Author extends BaseEntity{
@@ -59,5 +60,19 @@ public class Author extends BaseEntity{
 
     public void setBooks(Set<Book> books) {
         this.books = books;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Author author = (Author) o;
+        return firstName.equals(author.firstName) && lastName.equals(author.lastName) && Objects.equals(middleName, author.middleName) && Objects.equals(penName, author.penName) && Objects.equals(books, author.books);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), firstName, lastName, middleName, penName, books);
     }
 }

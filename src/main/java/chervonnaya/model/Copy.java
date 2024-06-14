@@ -3,6 +3,7 @@ package chervonnaya.model;
 import chervonnaya.model.enums.Language;
 
 import java.time.Year;
+import java.util.Objects;
 
 public class Copy extends BaseEntity {
     private String title;
@@ -82,5 +83,19 @@ public class Copy extends BaseEntity {
 
     public void setBook(Book book) {
         this.book = book;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Copy copy = (Copy) o;
+        return title.equals(copy.title) && language == copy.language && price.equals(copy.price) && Objects.equals(publishingHouse, copy.publishingHouse) && Objects.equals(publishingYear, copy.publishingYear) && Objects.equals(translator, copy.translator) && book.equals(copy.book);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), title, language, price, publishingHouse, publishingYear, translator, book);
     }
 }
