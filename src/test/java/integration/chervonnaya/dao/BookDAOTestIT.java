@@ -18,7 +18,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
-class BookDAOTest extends BaseIntegrationTest {
+class BookDAOTestIT extends BaseIntegrationTest {
     private final BookDAO bookDAO = new BookDAO(dataSource);
     private final BookMapper toDTOMapper = BookMapper.INSTANCE;
 

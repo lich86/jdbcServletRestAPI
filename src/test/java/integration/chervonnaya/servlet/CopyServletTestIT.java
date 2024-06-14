@@ -31,7 +31,7 @@ import java.util.Set;
 
 
 @Testcontainers
-public class CopyServletTest extends BaseIntegrationTest {
+public class CopyServletTestIT extends BaseIntegrationTest {
     private final CopyDAO copyDAO = new CopyDAO(dataSource);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final CrudService<CopyDTO> copyService = new CopyServiceImpl(copyDAO, Copy.class, Mappers.getMapper(CopyMapper.class));

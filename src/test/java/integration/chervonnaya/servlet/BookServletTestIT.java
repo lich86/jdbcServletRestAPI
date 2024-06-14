@@ -30,7 +30,7 @@ import java.util.Set;
 
 
 @Testcontainers
-public class BookServletTest extends BaseIntegrationTest {
+public class BookServletTestIT extends BaseIntegrationTest {
     private final BookDAO bookDAO = new BookDAO(dataSource);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final CrudService<BookDTO> bookService = new BookServiceImpl(bookDAO, Book.class, Mappers.getMapper(BookMapper.class));

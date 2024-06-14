@@ -15,7 +15,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
-class CopyDAOTest extends BaseIntegrationTest {
+class CopyDAOTestIT extends BaseIntegrationTest {
     private final CopyDAO copyDAO = new CopyDAO(dataSource);
     private final CopyMapper toDTOMapper = CopyMapper.INSTANCE;
 

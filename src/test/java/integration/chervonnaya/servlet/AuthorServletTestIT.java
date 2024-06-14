@@ -30,7 +30,7 @@ import java.util.Set;
 
 
 @Testcontainers
-public class AuthorServletTest extends BaseIntegrationTest {
+public class AuthorServletTestIT extends BaseIntegrationTest {
     private final AuthorDAO authorDAO = new AuthorDAO(dataSource);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final CrudService<AuthorDTO> authorService = new AuthorServiceImpl(authorDAO, Author.class, Mappers.getMapper(AuthorMapper.class));
