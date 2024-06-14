@@ -1,7 +1,7 @@
 package chervonnaya.dao;
 
 import chervonnaya.BaseIntegrationTest;
-import chervonnaya.TestData;
+import chervonnaya.TestDataIT;
 import chervonnaya.dto.CopyDTO;
 import chervonnaya.model.Copy;
 import chervonnaya.service.mappers.CopyMapper;
@@ -21,7 +21,7 @@ class CopyDAOTestIT extends BaseIntegrationTest {
 
     @Test
     void findCopyById_Should_ReturnCorrectCopy() {
-        CopyDTO expextedCopyDTO = TestData.COPY_DTO;
+        CopyDTO expextedCopyDTO = TestDataIT.COPY_DTO;
         Long id = copyDAO.create(expextedCopyDTO);
         expextedCopyDTO.setId(id);
 
@@ -40,7 +40,7 @@ class CopyDAOTestIT extends BaseIntegrationTest {
 
     @Test
     void createCopy_Should_CreateEntityInDB() {
-        Long id = copyDAO.create(TestData.COPY_DTO);
+        Long id = copyDAO.create(TestDataIT.COPY_DTO);
 
         assertTrue(id > 0);
         Optional<Copy> optionalCopy = copyDAO.findById(id);
@@ -51,14 +51,14 @@ class CopyDAOTestIT extends BaseIntegrationTest {
     void updateCopy_Should_UpdateEntityAsExpected() {
         Copy copy = copyDAO.findById(1L).orElse(null);
 
-        Assertions.assertNotEquals(copy.getPublishingHouse(), TestData.COPY_PUBLISHING_HOUSE);
+        Assertions.assertNotEquals(copy.getPublishingHouse(), TestDataIT.COPY_PUBLISHING_HOUSE);
 
         CopyDTO copyDTO = toDTOMapper.map(copy);
-        copyDTO.setPublishingHouse(TestData.COPY_PUBLISHING_HOUSE);
+        copyDTO.setPublishingHouse(TestDataIT.COPY_PUBLISHING_HOUSE);
         copyDAO.update(1L, copyDTO);
         copy = copyDAO.findById(1L).orElse(null);
 
-        Assertions.assertEquals(TestData.COPY_PUBLISHING_HOUSE, copy.getPublishingHouse());
+        Assertions.assertEquals(TestDataIT.COPY_PUBLISHING_HOUSE, copy.getPublishingHouse());
 
     }
 

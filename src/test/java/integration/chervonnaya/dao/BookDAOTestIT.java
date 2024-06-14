@@ -1,7 +1,7 @@
 package chervonnaya.dao;
 
 import chervonnaya.BaseIntegrationTest;
-import chervonnaya.TestData;
+import chervonnaya.TestDataIT;
 import chervonnaya.dto.BookDTO;
 import chervonnaya.model.Author;
 import chervonnaya.model.Book;
@@ -24,7 +24,7 @@ class BookDAOTestIT extends BaseIntegrationTest {
 
     @Test
     void findBookById_Should_ReturnCorrectBook() {
-        BookDTO expextedBookDTO = TestData.BOOK_DTO;
+        BookDTO expextedBookDTO = TestDataIT.BOOK_DTO;
         Long id = bookDAO.create(expextedBookDTO);
         expextedBookDTO.setId(id);
 
@@ -43,7 +43,7 @@ class BookDAOTestIT extends BaseIntegrationTest {
 
     @Test
     void createBook_Should_CreateEntityInDB() {
-        Long id = bookDAO.create(TestData.BOOK_DTO);
+        Long id = bookDAO.create(TestDataIT.BOOK_DTO);
 
         assertTrue(id > 0);
         Optional<Book> optionalBook = bookDAO.findById(id);
@@ -54,14 +54,14 @@ class BookDAOTestIT extends BaseIntegrationTest {
     void updateBook_Should_UpdateEntityAsExpected() {
         Book book = bookDAO.findById(1L).orElse(null);
 
-        Assertions.assertNotEquals(book.getDescription(), TestData.BOOK_DESCRIPTION);
+        Assertions.assertNotEquals(book.getDescription(), TestDataIT.BOOK_DESCRIPTION);
 
         BookDTO bookDTO = toDTOMapper.map(book);
-        bookDTO.setDescription(TestData.BOOK_DESCRIPTION);
+        bookDTO.setDescription(TestDataIT.BOOK_DESCRIPTION);
         bookDAO.update(1L, bookDTO);
         book = bookDAO.findById(1L).orElse(null);
 
-        Assertions.assertEquals(TestData.BOOK_DESCRIPTION, book.getDescription());
+        Assertions.assertEquals(TestDataIT.BOOK_DESCRIPTION, book.getDescription());
 
     }
 

@@ -2,7 +2,7 @@ package chervonnaya.servlet;
 
 
 import chervonnaya.BaseIntegrationTest;
-import chervonnaya.TestData;
+import chervonnaya.TestDataIT;
 import chervonnaya.dao.CopyDAO;
 import chervonnaya.dto.CopyDTO;
 import chervonnaya.model.Copy;
@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.*;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
@@ -24,7 +25,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 
 import java.io.*;
-import java.lang.reflect.Field;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -52,16 +52,10 @@ public class CopyServletTestIT extends BaseIntegrationTest {
         objectMapper.registerModule(new JavaTimeModule());
     }
 
-    private void injectFields() throws NoSuchFieldException, IllegalAccessException {
-        Field copyServiceField = CopyServlet.class.getDeclaredField("copyService");
-        Field objectMapperField = CopyServlet.class.getDeclaredField("objectMapper");
-        Field dataSourceField = CopyServlet.class.getDeclaredField("dataSource");
-        copyServiceField.setAccessible(true);
-        objectMapperField.setAccessible(true);
-        dataSourceField.setAccessible(true);
-        copyServiceField.set(copyServlet, copyService);
-        objectMapperField.set(copyServlet, objectMapper);
-        dataSourceField.set(copyServlet, dataSource);
+    private void injectFields() throws IllegalAccessException {
+        FieldUtils.writeField(copyServlet, "copyService", copyService, true);
+        FieldUtils.writeField(copyServlet, "objectMapper", objectMapper, true);
+        FieldUtils.writeField(copyServlet, "dataSource", dataSource, true);
     }
 
     @AfterEach
@@ -72,7 +66,7 @@ public class CopyServletTestIT extends BaseIntegrationTest {
 
     @Test
     void getCopyById_Should_ReturnCorrectCopyDTO() throws IOException {
-        Long id = copyDAO.create(TestData.COPY_DTO);
+        Long id = copyDAO.create(TestDataIT.COPY_DTO);
         Mockito.when(request.getPathInfo()).thenReturn("/" + id);
         CopyDTO expectedDTO = copyService.getById(id).orElse(null);
         String expectedResponse = objectMapper.writeValueAsString(expectedDTO);
@@ -111,7 +105,7 @@ public class CopyServletTestIT extends BaseIntegrationTest {
 
     @Test
     void postCopy_Should_ReturnCreatedString() throws IOException {
-        String requestString = objectMapper.writeValueAsString(TestData.COPY_DTO);
+        String requestString = objectMapper.writeValueAsString(TestDataIT.COPY_DTO);
         Mockito.when(request.getReader()).thenReturn(new BufferedReader(new StringReader(requestString)));
 
         copyServlet.doPost(request, response);
@@ -121,7 +115,7 @@ public class CopyServletTestIT extends BaseIntegrationTest {
 
     @Test
     void postCopy_ShouldNot_CreateEntityWithWrongDTO() throws IOException {
-        String requestString = objectMapper.writeValueAsString(TestData.WRONG_COPY_DTO);
+        String requestString = objectMapper.writeValueAsString(TestDataIT.WRONG_COPY_DTO);
         Mockito.when(request.getReader()).thenReturn(new BufferedReader(new StringReader(requestString)));
 
         copyServlet.doPost(request, response);
@@ -134,7 +128,7 @@ public class CopyServletTestIT extends BaseIntegrationTest {
         CopyDTO copyDTO = copyService.getById(1L).orElse(null);
         copyDTO.setPublishingHouse("");
         copyDAO.update(1L, copyDTO);
-        copyDTO.setPublishingHouse(TestData.COPY_PUBLISHING_HOUSE);
+        copyDTO.setPublishingHouse(TestDataIT.COPY_PUBLISHING_HOUSE);
         String requestString = objectMapper.writeValueAsString(copyDTO);
         Mockito.when(request.getReader()).thenReturn(new BufferedReader(new StringReader(requestString)));
         Mockito.when(request.getPathInfo()).thenReturn("/1");
@@ -147,7 +141,7 @@ public class CopyServletTestIT extends BaseIntegrationTest {
 
     @Test
     void deleteCopy_Should_DeleteEntityFromDB() {
-        Long id = copyDAO.create(TestData.COPY_DTO);
+        Long id = copyDAO.create(TestDataIT.COPY_DTO);
         Mockito.when(request.getPathInfo()).thenReturn("/" + id);
 
         copyServlet.doDelete(request, response);

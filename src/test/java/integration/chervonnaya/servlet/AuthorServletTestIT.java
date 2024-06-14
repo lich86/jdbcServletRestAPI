@@ -2,7 +2,7 @@ package chervonnaya.servlet;
 
 
 import chervonnaya.BaseIntegrationTest;
-import chervonnaya.TestData;
+import chervonnaya.TestDataIT;
 import chervonnaya.dao.AuthorDAO;
 import chervonnaya.dto.AuthorDTO;
 import chervonnaya.model.Author;
@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.*;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
@@ -23,7 +24,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 
 import java.io.*;
-import java.lang.reflect.Field;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -50,16 +50,10 @@ public class AuthorServletTestIT extends BaseIntegrationTest {
         Mockito.when(response.getWriter()).thenReturn(printWriter);
     }
 
-    private void injectFields() throws NoSuchFieldException, IllegalAccessException {
-        Field authorServiceField = AuthorServlet.class.getDeclaredField("authorService");
-        Field objectMapperField = AuthorServlet.class.getDeclaredField("objectMapper");
-        Field dataSourceField = AuthorServlet.class.getDeclaredField("dataSource");
-        authorServiceField.setAccessible(true);
-        objectMapperField.setAccessible(true);
-        dataSourceField.setAccessible(true);
-        authorServiceField.set(authorServlet, authorService);
-        objectMapperField.set(authorServlet, objectMapper);
-        dataSourceField.set(authorServlet, dataSource);
+    private void injectFields() throws IllegalAccessException {
+        FieldUtils.writeField(authorServlet, "authorService", authorService, true);
+        FieldUtils.writeField(authorServlet, "objectMapper", objectMapper, true);
+        FieldUtils.writeField(authorServlet, "dataSource", dataSource, true);
     }
 
     @AfterEach
@@ -70,7 +64,7 @@ public class AuthorServletTestIT extends BaseIntegrationTest {
 
     @Test
     void getAuthorById_Should_ReturnCorrectAuthorDTO() throws IOException {
-        Long id = authorDAO.create(TestData.AUTHOR_DTO);
+        Long id = authorDAO.create(TestDataIT.AUTHOR_DTO);
         Mockito.when(request.getPathInfo()).thenReturn("/" + id);
         AuthorDTO expectedDTO = authorService.getById(id).orElse(null);
         String expectedResponse = objectMapper.writeValueAsString(expectedDTO);
@@ -109,7 +103,7 @@ public class AuthorServletTestIT extends BaseIntegrationTest {
 
     @Test
     void postAuthor_Should_ReturnCreatedString() throws IOException {
-        String requestString = objectMapper.writeValueAsString(TestData.AUTHOR_DTO);
+        String requestString = objectMapper.writeValueAsString(TestDataIT.AUTHOR_DTO);
         Mockito.when(request.getReader()).thenReturn(new BufferedReader(new StringReader(requestString)));
 
         authorServlet.doPost(request, response);
@@ -119,7 +113,7 @@ public class AuthorServletTestIT extends BaseIntegrationTest {
 
     @Test
     void postAuthor_ShouldNot_CreateEntityWithWrongDTO() throws IOException {
-        String requestString = objectMapper.writeValueAsString(TestData.WRONG_AUTHOR_DTO);
+        String requestString = objectMapper.writeValueAsString(TestDataIT.WRONG_AUTHOR_DTO);
         Mockito.when(request.getReader()).thenReturn(new BufferedReader(new StringReader(requestString)));
 
         authorServlet.doPost(request, response);
@@ -132,7 +126,7 @@ public class AuthorServletTestIT extends BaseIntegrationTest {
         AuthorDTO authorDTO = authorService.getById(1L).orElse(null);
         authorDTO.setPenName("");
         authorDAO.update(1L, authorDTO);
-        authorDTO.setPenName(TestData.AUTHOR_PEN_NAME);
+        authorDTO.setPenName(TestDataIT.AUTHOR_PEN_NAME);
         String requestString = objectMapper.writeValueAsString(authorDTO);
         Mockito.when(request.getReader()).thenReturn(new BufferedReader(new StringReader(requestString)));
         Mockito.when(request.getPathInfo()).thenReturn("/1");
@@ -145,7 +139,7 @@ public class AuthorServletTestIT extends BaseIntegrationTest {
 
     @Test
     void deleteAuthor_Should_DeleteEntityFromDB() {
-        Long id = authorDAO.create(TestData.AUTHOR_DTO);
+        Long id = authorDAO.create(TestDataIT.AUTHOR_DTO);
         Mockito.when(request.getPathInfo()).thenReturn("/" + id);
 
         authorServlet.doDelete(request, response);

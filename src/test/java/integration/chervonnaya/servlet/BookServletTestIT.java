@@ -2,7 +2,7 @@ package chervonnaya.servlet;
 
 
 import chervonnaya.BaseIntegrationTest;
-import chervonnaya.TestData;
+import chervonnaya.TestDataIT;
 import chervonnaya.dao.BookDAO;
 import chervonnaya.dto.BookDTO;
 import chervonnaya.model.Book;
@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.*;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
@@ -23,7 +24,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 
 import java.io.*;
-import java.lang.reflect.Field;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -50,16 +50,10 @@ public class BookServletTestIT extends BaseIntegrationTest {
         Mockito.when(response.getWriter()).thenReturn(printWriter);
     }
 
-    private void injectFields() throws NoSuchFieldException, IllegalAccessException {
-        Field bookServiceField = BookServlet.class.getDeclaredField("bookService");
-        Field objectMapperField = BookServlet.class.getDeclaredField("objectMapper");
-        Field dataSourceField = BookServlet.class.getDeclaredField("dataSource");
-        bookServiceField.setAccessible(true);
-        objectMapperField.setAccessible(true);
-        dataSourceField.setAccessible(true);
-        bookServiceField.set(bookServlet, bookService);
-        objectMapperField.set(bookServlet, objectMapper);
-        dataSourceField.set(bookServlet, dataSource);
+    private void injectFields() throws IllegalAccessException {
+        FieldUtils.writeField(bookServlet, "bookService", bookService, true);
+        FieldUtils.writeField(bookServlet, "objectMapper", objectMapper, true);
+        FieldUtils.writeField(bookServlet, "dataSource", dataSource, true);
     }
 
     @AfterEach
@@ -70,7 +64,7 @@ public class BookServletTestIT extends BaseIntegrationTest {
 
     @Test
     void getBookById_Should_ReturnCorrectBookDTO() throws IOException {
-        Long id = bookDAO.create(TestData.BOOK_DTO);
+        Long id = bookDAO.create(TestDataIT.BOOK_DTO);
         Mockito.when(request.getPathInfo()).thenReturn("/" + id);
         BookDTO expectedDTO = bookService.getById(id).orElse(null);
         String expectedResponse = objectMapper.writeValueAsString(expectedDTO);
@@ -109,7 +103,7 @@ public class BookServletTestIT extends BaseIntegrationTest {
 
     @Test
     void postBook_Should_ReturnCreatedString() throws IOException {
-        String requestString = objectMapper.writeValueAsString(TestData.BOOK_DTO);
+        String requestString = objectMapper.writeValueAsString(TestDataIT.BOOK_DTO);
         Mockito.when(request.getReader()).thenReturn(new BufferedReader(new StringReader(requestString)));
 
         bookServlet.doPost(request, response);
@@ -119,7 +113,7 @@ public class BookServletTestIT extends BaseIntegrationTest {
 
     @Test
     void postBook_ShouldNot_CreateEntityWithWrongDTO() throws IOException {
-        String requestString = objectMapper.writeValueAsString(TestData.WRONG_BOOK_DTO);
+        String requestString = objectMapper.writeValueAsString(TestDataIT.WRONG_BOOK_DTO);
         Mockito.when(request.getReader()).thenReturn(new BufferedReader(new StringReader(requestString)));
 
         bookServlet.doPost(request, response);
@@ -132,7 +126,7 @@ public class BookServletTestIT extends BaseIntegrationTest {
         BookDTO bookDTO = bookService.getById(1L).orElse(null);
         bookDTO.setDescription("");
         bookDAO.update(1L, bookDTO);
-        bookDTO.setDescription(TestData.BOOK_DESCRIPTION);
+        bookDTO.setDescription(TestDataIT.BOOK_DESCRIPTION);
         String requestString = objectMapper.writeValueAsString(bookDTO);
         Mockito.when(request.getReader()).thenReturn(new BufferedReader(new StringReader(requestString)));
         Mockito.when(request.getPathInfo()).thenReturn("/1");
@@ -145,7 +139,7 @@ public class BookServletTestIT extends BaseIntegrationTest {
 
     @Test
     void deleteBook_Should_DeleteEntityFromDB() {
-        Long id = bookDAO.create(TestData.BOOK_DTO);
+        Long id = bookDAO.create(TestDataIT.BOOK_DTO);
         Mockito.when(request.getPathInfo()).thenReturn("/" + id);
 
         bookServlet.doDelete(request, response);

@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 
-public class TestData {
+public class TestDataIT {
     public static final String AUTHOR_PEN_NAME = "Сомерсет Моэм";
     public static final AuthorDTO AUTHOR_DTO = new AuthorDTO();
     public static final AuthorDTO WRONG_AUTHOR_DTO = new AuthorDTO();

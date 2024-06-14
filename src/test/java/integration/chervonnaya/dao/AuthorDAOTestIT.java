@@ -1,7 +1,7 @@
 package chervonnaya.dao;
 
 import chervonnaya.BaseIntegrationTest;
-import chervonnaya.TestData;
+import chervonnaya.TestDataIT;
 import chervonnaya.dto.AuthorDTO;
 import chervonnaya.model.Author;
 import chervonnaya.model.Book;
@@ -25,7 +25,7 @@ class AuthorDAOTestIT extends BaseIntegrationTest {
 
     @Test
     void findAuthorById_Should_ReturnCorrectAuthor() {
-        AuthorDTO expextedAuthorDTO = TestData.AUTHOR_DTO;
+        AuthorDTO expextedAuthorDTO = TestDataIT.AUTHOR_DTO;
         Long id = authorDAO.create(expextedAuthorDTO);
         expextedAuthorDTO.setId(id);
 
@@ -44,7 +44,7 @@ class AuthorDAOTestIT extends BaseIntegrationTest {
 
     @Test
     void createAuthor_Should_CreateEntityInDB() {
-        Long id = authorDAO.create(TestData.AUTHOR_DTO);
+        Long id = authorDAO.create(TestDataIT.AUTHOR_DTO);
 
         assertTrue(id > 0);
         Optional<Author> optionalAuthor = authorDAO.findById(id);
@@ -55,14 +55,14 @@ class AuthorDAOTestIT extends BaseIntegrationTest {
     void updateAuthor_Should_UpdateEntityAsExpected() {
         Author author = authorDAO.findById(1L).orElse(null);
 
-        Assertions.assertNotEquals(author.getPenName(), TestData.AUTHOR_PEN_NAME);
+        Assertions.assertNotEquals(author.getPenName(), TestDataIT.AUTHOR_PEN_NAME);
 
         AuthorDTO authorDTO = toDTOMapper.map(author);
-        authorDTO.setPenName(TestData.AUTHOR_PEN_NAME);
+        authorDTO.setPenName(TestDataIT.AUTHOR_PEN_NAME);
         authorDAO.update(1L, authorDTO);
         author = authorDAO.findById(1L).orElse(null);
 
-        Assertions.assertEquals(TestData.AUTHOR_PEN_NAME, author.getPenName());
+        Assertions.assertEquals(TestDataIT.AUTHOR_PEN_NAME, author.getPenName());
 
     }
 
