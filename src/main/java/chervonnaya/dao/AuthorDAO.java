@@ -87,7 +87,7 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
             int affectedRows = authorStatement.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new DatabaseOperationException("Creating author failed, no rows affected.");
+                throw new SQLException("Creating author failed, no rows affected.");
             }
             ResultSet authorResult = authorStatement.getGeneratedKeys();
             authorResult.next();
@@ -117,7 +117,7 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
             int affectedRows = authorStatement.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new DatabaseOperationException("Updating author failed, no rows affected, id:" + authorId);
+                throw new SQLException("Updating author failed, no rows affected, id:" + authorId);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -149,7 +149,7 @@ public class AuthorDAO implements BaseDAO<Author, AuthorDTO> {
                 authorDeleteStatement.setLong(1, authorId);
                 int affectedRows = authorDeleteStatement.executeUpdate();
                 if (affectedRows == 0) {
-                    throw new DatabaseOperationException("No author found, id: " + authorId);
+                    throw new SQLException("No author found, id: " + authorId);
                 }
 
                 connection.commit();

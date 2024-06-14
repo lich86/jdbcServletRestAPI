@@ -6,6 +6,7 @@ import chervonnaya.exception.CreateEntityException;
 import chervonnaya.exception.EntityNotFoundException;
 import chervonnaya.model.BaseEntity;
 import chervonnaya.service.mappers.BaseMapper;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Optional;
@@ -37,11 +37,9 @@ class CrudServiceImplTest {
     private AutoCloseable closeable;
 
     @BeforeEach
-    void setUp() throws NoSuchFieldException, IllegalAccessException {
+    void setUp() throws IllegalAccessException {
         closeable = MockitoAnnotations.openMocks(this);
-        Field genericTypeField = CrudServiceImpl.class.getDeclaredField("genericType");
-        genericTypeField.setAccessible(true);
-        genericTypeField.set(crudService, BaseEntity.class);
+        FieldUtils.writeField(crudService, "genericType", BaseEntity.class, true);
     }
 
     @AfterEach

@@ -93,7 +93,7 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
 
             int affectedRows = copyStatement.executeUpdate();
             if (affectedRows == 0) {
-                throw new DatabaseOperationException("Creating copy failed, no rows affected.");
+                throw new SQLException("Creating copy failed, no rows affected.");
             }
             ResultSet copySet = copyStatement.getGeneratedKeys();
             copySet.next();
@@ -129,7 +129,7 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
 
             int affectedRows = copyStatement.executeUpdate();
             if (affectedRows == 0) {
-                throw new DatabaseOperationException("Updating copy failed, no rows affected, id: " + copyId);
+                throw new SQLException("Updating copy failed, no rows affected, id: " + copyId);
             }
         } catch (SQLException e) {
             throw new DatabaseOperationException("Updating copy failed, id: " + copyId, e);
@@ -142,7 +142,7 @@ public class CopyDAO implements BaseDAO<Copy, CopyDTO> {
             copyDeleteStatement.setLong(1, copyId);
             int affectedRows = copyDeleteStatement.executeUpdate();
             if (affectedRows == 0) {
-                throw new DatabaseOperationException("No copy found, id " + copyId);
+                throw new SQLException("No copy found, id " + copyId);
             }
         } catch (SQLException e) {
             throw new DatabaseOperationException("Could not delete copy, id: " + copyId, e);

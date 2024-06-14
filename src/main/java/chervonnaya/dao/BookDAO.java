@@ -138,7 +138,7 @@ public class BookDAO implements
                 bookStatement.setLong(4, bookId);
                 int affectedRows = bookStatement.executeUpdate();
                 if (affectedRows == 0) {
-                    throw new DatabaseOperationException("Updating book failed, no rows affected, id: " + bookId);
+                    throw new SQLException("Updating book failed, no rows affected, id: " + bookId);
                 }
                 authorsFindStatement.setLong(1, bookId);
                 ResultSet actualAuthors = authorsFindStatement.executeQuery();
@@ -146,7 +146,7 @@ public class BookDAO implements
                     try {
                         updateAuthors(bookId, dto, actualAuthors, authorUnsetStatement, authorSetStatement);
                     } catch (SQLException e) {
-                        throw new DatabaseOperationException("Updating authors for book failed, id: " + bookId, e);
+                        throw new SQLException("Updating authors for book failed, id: " + bookId, e);
                     }
                 }
                 connection.commit();
@@ -173,7 +173,10 @@ public class BookDAO implements
                 copyDeleteStatement.setLong(1, bookId);
                 copyDeleteStatement.executeUpdate();
                 bookDeleteStatement.setLong(1, bookId);
-                bookDeleteStatement.executeUpdate();
+                int affectedRows = bookDeleteStatement.executeUpdate();
+                if (affectedRows == 0) {
+                    throw new SQLException("No author found, id: " + bookId);
+                }
                 connection.commit();
             } catch (SQLException e) {
                 connection.rollback();

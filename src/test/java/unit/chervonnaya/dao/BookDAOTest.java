@@ -1,10 +1,10 @@
 package chervonnaya.dao;
 
 import chervonnaya.TestData;
-import chervonnaya.dto.AuthorDTO;
+import chervonnaya.dto.BookDTO;
 import chervonnaya.exception.DatabaseOperationException;
-import chervonnaya.model.Author;
-import chervonnaya.dao.mappers.AuthorDBMapper;
+import chervonnaya.model.Book;
+import chervonnaya.dao.mappers.BookDBMapper;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +18,7 @@ import java.util.*;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.Mockito;
 
-public class AuthorDAOTest {
+public class BookDAOTest {
 
     @Mock
     private DataSource dataSource;
@@ -29,8 +29,8 @@ public class AuthorDAOTest {
     @Mock
     private ResultSet resultSet;
     @Mock
-    private AuthorDBMapper authorDBMapper;
-    private AuthorDAO authorDAO;
+    private BookDBMapper bookDBMapper;
+    private BookDAO bookDAO;
     private AutoCloseable closeable;
 
 
@@ -38,8 +38,8 @@ public class AuthorDAOTest {
     public void setUp() throws Exception {
         closeable = MockitoAnnotations.openMocks(this);
         Mockito.when(dataSource.getConnection()).thenReturn(connection);
-        authorDAO = new AuthorDAO(dataSource);
-        FieldUtils.writeField(authorDAO, "authorDBMapper", authorDBMapper, true);
+        bookDAO = new BookDAO(dataSource);
+        FieldUtils.writeField(bookDAO, "bookDBMapper", bookDBMapper, true);
     }
 
     @AfterEach
@@ -52,12 +52,12 @@ public class AuthorDAOTest {
         Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(preparedStatement);
         Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
         Mockito.when(resultSet.next()).thenReturn(true).thenReturn(false);
-        Mockito.when(authorDBMapper.map(resultSet)).thenReturn(TestData.AUTHOR1);
+        Mockito.when(bookDBMapper.map(resultSet)).thenReturn(TestData.BOOK1);
 
-        Optional<Author> actualAuthor = authorDAO.findById(1L);
+        Optional<Book> actualBook = bookDAO.findById(1L);
 
-        Assertions.assertTrue(actualAuthor.isPresent());
-        Assertions.assertEquals(TestData.AUTHOR1, actualAuthor.get());
+        Assertions.assertTrue(actualBook.isPresent());
+        Assertions.assertEquals(TestData.BOOK1, actualBook.get());
         Mockito.verify(preparedStatement, Mockito.atLeast(1)).setLong(1, 1L);
     }
 
@@ -67,7 +67,7 @@ public class AuthorDAOTest {
         Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
         Mockito.when(resultSet.next()).thenReturn(false);
 
-        Optional<Author> result = authorDAO.findById(1L);
+        Optional<Book> result = bookDAO.findById(1L);
 
         Assertions.assertFalse(result.isPresent());
         Mockito.verify(preparedStatement, Mockito.atLeast(1)).setLong(1, 1L);
@@ -78,33 +78,33 @@ public class AuthorDAOTest {
         Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(preparedStatement);
         Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
         Mockito.when(resultSet.next())
-                .thenReturn(true).thenReturn(false)
-                .thenReturn(true).thenReturn(false)
+                .thenReturn(true).thenReturn(false).thenReturn(false)
+                .thenReturn(true).thenReturn(false).thenReturn(false)
                 .thenReturn(false);
-        Mockito.when(authorDBMapper.map(resultSet)).thenReturn(TestData.AUTHOR1).thenReturn(TestData.AUTHOR2);
+        Mockito.when(bookDBMapper.map(resultSet)).thenReturn(TestData.BOOK1).thenReturn(TestData.BOOK2);
 
-        Set<Author> authors = authorDAO.findAll();
+        Set<Book> books = bookDAO.findAll();
 
-        Assertions.assertEquals(2, authors.size());
-        Assertions.assertTrue(authors.contains(TestData.AUTHOR1));
-        Assertions.assertTrue(authors.contains(TestData.AUTHOR2));
+        Assertions.assertEquals(2, books.size());
+        Assertions.assertTrue(books.contains(TestData.BOOK1));
+        Assertions.assertTrue(books.contains(TestData.BOOK2));
     }
 
     @Test
     public void create_Should_Succeed() throws Exception {
         Mockito.when(connection.prepareStatement(Mockito.anyString(), Mockito.eq(PreparedStatement.RETURN_GENERATED_KEYS))).thenReturn(preparedStatement);
+        Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(preparedStatement);
         Mockito.when(preparedStatement.executeUpdate()).thenReturn(1);
         Mockito.when(preparedStatement.getGeneratedKeys()).thenReturn(resultSet);
         Mockito.when(resultSet.next()).thenReturn(true);
         Mockito.when(resultSet.getLong(1)).thenReturn(1L);
 
-        Long authorId = authorDAO.create(TestData.AUTHOR_DTO);
+        Long bookId = bookDAO.create(TestData.BOOK_DTO);
 
-        Assertions.assertEquals(1L, authorId);
-        Mockito.verify(preparedStatement, Mockito.times(1)).setString(1, TestData.AUTHOR_DTO.getFirstName());
-        Mockito.verify(preparedStatement, Mockito.times(1)).setString(2, TestData.AUTHOR_DTO.getLastName());
-        Mockito.verify(preparedStatement, Mockito.times(1)).setString(3, TestData.AUTHOR_DTO.getMiddleName());
-        Mockito.verify(preparedStatement, Mockito.times(1)).setString(4, TestData.AUTHOR_DTO.getPenName());
+        Assertions.assertEquals(1L, bookId);
+        Mockito.verify(preparedStatement, Mockito.times(1)).setString(1, TestData.BOOK_DTO.getOriginalTitle());
+        Mockito.verify(preparedStatement, Mockito.times(1)).setString(2, TestData.BOOK_DTO.getOriginalLanguage().name());
+        Mockito.verify(preparedStatement, Mockito.times(1)).setString(3, TestData.BOOK_DTO.getDescription());
     }
 
     @Test
@@ -112,13 +112,12 @@ public class AuthorDAOTest {
         Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(preparedStatement);
         Mockito.when(preparedStatement.executeUpdate()).thenReturn(1);
 
-        authorDAO.update(1L, TestData.AUTHOR_DTO);
+        bookDAO.update(1L, TestData.BOOK_DTO);
 
-        Mockito.verify(preparedStatement, Mockito.times(1)).setLong(5, 1L);
-        Mockito.verify(preparedStatement, Mockito.times(1)).setString(1, TestData.AUTHOR_DTO.getFirstName());
-        Mockito.verify(preparedStatement, Mockito.times(1)).setString(2, TestData.AUTHOR_DTO.getLastName());
-        Mockito.verify(preparedStatement, Mockito.times(1)).setString(3, TestData.AUTHOR_DTO.getMiddleName());
-        Mockito.verify(preparedStatement, Mockito.times(1)).setString(4, TestData.AUTHOR_DTO.getPenName());
+        Mockito.verify(preparedStatement, Mockito.times(1)).setLong(4, 1L);
+        Mockito.verify(preparedStatement, Mockito.times(1)).setString(1, TestData.BOOK_DTO.getOriginalTitle());
+        Mockito.verify(preparedStatement, Mockito.times(1)).setString(2, TestData.BOOK_DTO.getOriginalLanguage().name());
+        Mockito.verify(preparedStatement, Mockito.times(1)).setString(3, TestData.BOOK_DTO.getDescription());
     }
 
     @Test
@@ -128,33 +127,33 @@ public class AuthorDAOTest {
         Mockito.when(resultSet.next()).thenReturn(true).thenReturn(false);
         Mockito.when(preparedStatement.executeUpdate()).thenReturn(1);
 
-        authorDAO.delete(1L);
+        bookDAO.delete(1L);
 
-        Mockito.verify(preparedStatement, Mockito.times(4)).setLong(1, 1L);
-        Mockito.verify(preparedStatement, Mockito.times(3)).executeUpdate();
+        Mockito.verify(preparedStatement, Mockito.times(2)).setLong(1, 1L);
+        Mockito.verify(preparedStatement, Mockito.times(2)).executeUpdate();
         Mockito.verify(connection, Mockito.times(1)).commit();
     }
 
     @Test
-    public void delete_Should_FailWhenAuthorNotFound() throws Exception {
+    public void delete_Should_FailWhenBookNotFound() throws Exception {
         Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(preparedStatement);
         Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
         Mockito.when(resultSet.next()).thenReturn(false);
         Mockito.when(preparedStatement.executeUpdate()).thenReturn(0);
 
-        Assertions.assertThrows(DatabaseOperationException.class, () -> authorDAO.delete(1L));
+        Assertions.assertThrows(DatabaseOperationException.class, () -> bookDAO.delete(1L));
 
         Mockito.verify(connection, Mockito.times(1)).rollback();
     }
 
     @Test
-    public void authorDao_Should_ThrowDatabaseOperationException() throws Exception {
+    public void bookDao_Should_ThrowDatabaseOperationException() throws Exception {
         Mockito.when(dataSource.getConnection()).thenThrow(new SQLException());
 
-        Assertions.assertThrows(DatabaseOperationException.class, () -> authorDAO.findById(1L));
-        Assertions.assertThrows(DatabaseOperationException.class, () -> authorDAO.findAll());
-        Assertions.assertThrows(DatabaseOperationException.class, () -> authorDAO.create(new AuthorDTO()));
-        Assertions.assertThrows(DatabaseOperationException.class, () -> authorDAO.update(1L, new AuthorDTO()));
-        Assertions.assertThrows(DatabaseOperationException.class, () -> authorDAO.delete(1L));
+        Assertions.assertThrows(DatabaseOperationException.class, () -> bookDAO.findById(1L));
+        Assertions.assertThrows(DatabaseOperationException.class, () -> bookDAO.findAll());
+        Assertions.assertThrows(DatabaseOperationException.class, () -> bookDAO.create(new BookDTO()));
+        Assertions.assertThrows(DatabaseOperationException.class, () -> bookDAO.update(1L, new BookDTO()));
+        Assertions.assertThrows(DatabaseOperationException.class, () -> bookDAO.delete(1L));
     }
 }
